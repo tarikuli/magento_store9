@@ -1,0 +1,127 @@
+<?php    $slide_status=$this->getResponsivebannersliderEnabled();   ?>
+<?php    $slide_speed=$this->getResponsivebannersliderSpeed();   ?>
+<?php    $slide_type=$this->getResponsivebannerSlideType(); ?>
+<?php    $slide_BannerLoop=$this->getResponsivebannerBannerLoop(); ?>
+<?php    $slide_PauseOnhover=$this->getResponsivebannerPauseOnhover(); ?>
+
+
+<?php
+// Module Enable/Dsable Function.......................................
+if($slide_status==1){ ?> 
+
+<?php
+
+
+// Module type Function.......................................
+if($slide_type=='1'){ ?>  
+	<?php  $cssurl =  str_replace('index.php/','',$this->getUrl());?>  
+	<section class="vehicle-model"> 
+		<div class="container">
+			<h2 class="section-title">Vehicle Models</h2>
+			<div class="owl-carousel"> 
+				 
+				<?php 
+					$connection = Mage::getSingleton('core/resource')->getConnection('core_write');
+					$prefix = Mage::getConfig()->getTablePrefix();
+					$tblname=$prefix.'mksresponsivebannerslider';
+					$sql = $connection->query("select * from $tblname where status='0' and groupname='vehicle_model' ORDER BY imageorder ASC ");
+					while($row1 = $sql->fetch())
+					{
+					$title = $row1["title"];
+					$description = $row1["description"];
+					$urlx = $row1["image"]; 
+					$media_url =  Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA);
+					$imgurl=$media_url.$urlx;
+					$url = empty($row1["url"])?"#":$row1["url"]; 
+				?>
+					<div class="item"> 
+				 		<a href="<?php echo $url ?>" title="<?php echo $title?>"><img src="<?php echo $imgurl; ?>" alt="<?php  echo $title ?>"> </a>
+					</div>
+
+				<?php } ?>
+				 
+			</div>
+		</div>
+	</section>
+	<section class="delivery-payment">
+		<div class="container">
+			<div class="owl-carousel"> 
+				<div class="item"> 
+						<h2><img src="<?php echo $this->getSkinUrl('images/delivery.png'); ?>"> <span>Same Day Shipping</span></h2>
+						<?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('fast_delivery')->toHtml();?> 
+						 
+				</div>
+				<div class="item"> 
+					<h2><img src="<?php echo $this->getSkinUrl('images/payment.png'); ?>"> <span>Payment Methods</span></h2>
+					<?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('payment_methods')->toHtml();?>  
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- BEGIN GOOGLE ANALYTICS CODEs --> 
+	<script type="text/javascript">
+	//<![CDATA[
+	//jQuery(function($) {
+	responsivemks = jQuery.noConflict(); 
+	responsivemks(window).load(function(){ 
+		responsivemks('.vehicle-model .owl-carousel').owlCarousel({
+	        navText: ['', ''],
+	        loop: true,
+	        margin: 1,
+	        nav: false,
+	        //navContainer: 'owl-carousel',
+	        autoplay: true,
+	        autoplayTimeout: 4000,
+	        autoplayHoverPause: true,
+	        animateIn: 'fade',
+	        dots:false,
+	        responsive: {
+	            0: {
+	                items: 2
+	            },
+	            480: {
+	                items: 4
+	            },
+	            769: {
+	                items: 6
+	            }
+	        }
+	    }); 
+
+	    responsivemks('.delivery-payment .owl-carousel').owlCarousel({
+	        navText: ['', ''],
+	        loop: false,
+	        margin: 0,
+	        nav: false,
+	        //navContainer: 'owl-carousel',
+	        autoplay: false,
+	        autoplayTimeout: 4000,
+	        autoplayHoverPause: true,
+	        animateIn: 'fadeIn',
+	        dots:true,
+	        autoHeight : true,
+	        responsive: {
+	            0: {
+	                items: 1
+	            },
+	            480: {
+	                items: 1
+	            },
+	            769: {
+	                items: 2
+	            }
+	        }
+	    }); 
+	});  
+	//]]>
+	</script>    
+
+	<?php 
+	// Module type 2 Function.......................................End
+	} ?>
+
+	<?php } else { ?>
+ 
+
+ <?php } ?>

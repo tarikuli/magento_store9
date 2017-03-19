@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Yellowkeyssupply_Adminhtml>
+            <version>1.0</version>
+        </Yellowkeyssupply_Adminhtml>
+    </modules>
+    <stores>
+        <admin>
+            <!-- override default admin design package and theme -->
+            <design>
+                <package>
+                    <name>default</name>
+                </package>
+                <theme>
+                    <!-- this is the theme name -->
+                    <default>yellowkeyssupply</default>
+                </theme>
+            </design>
+        </admin>
+    </stores>
+</config>

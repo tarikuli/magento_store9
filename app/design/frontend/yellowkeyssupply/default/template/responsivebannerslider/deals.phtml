@@ -1,0 +1,87 @@
+<?php    $slide_status=$this->getResponsivebannersliderEnabled();   ?>
+<?php    $slide_speed=$this->getResponsivebannersliderSpeed();   ?>
+<?php    $slide_type=$this->getResponsivebannerSlideType(); ?>
+<?php    $slide_BannerLoop=$this->getResponsivebannerBannerLoop(); ?>
+<?php    $slide_PauseOnhover=$this->getResponsivebannerPauseOnhover(); ?>
+
+
+<?php
+// Module Enable/Dsable Function.......................................
+if($slide_status==1){ ?>
+
+
+
+<?php
+
+
+// Module type Function.......................................
+if($slide_type=='1'){ ?>  
+	<?php  $cssurl =  str_replace('index.php/','',$this->getUrl());?>  
+	<div class="deals-banner owl-carousel"> 
+		 
+		<?php 
+			$connection = Mage::getSingleton('core/resource')->getConnection('core_write');
+			$prefix = Mage::getConfig()->getTablePrefix();
+			$tblname=$prefix.'mksresponsivebannerslider';
+			$sql = $connection->query("select * from $tblname where status='0' and groupname='deals_banner' ORDER BY imageorder ASC ");
+			while($row1 = $sql->fetch())
+			{
+			$title = $row1["title"];
+			$description = $row1["description"];
+			$urlx = $row1["image"]; 
+			$media_url =  Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA);
+			$imgurl=$media_url.$urlx;
+			$url = empty($row1["url"])?"#":$row1["url"]; 
+		?>
+			<div class="item"> 
+		 		<img src="<?php echo $imgurl; ?>">
+		 		<a class="button shopnow" href="<?php echo $url; ?>" >Shop Now</a>
+			</div>
+
+		<?php } ?>
+		 
+	</div>
+
+	<!-- BEGIN GOOGLE ANALYTICS CODEs -->
+
+	<script type="text/javascript">
+	//<![CDATA[
+	//jQuery(function($) {
+	responsivemks = jQuery.noConflict(); 
+	responsivemks(window).load(function(){ 
+		responsivemks('.deals-banner').owlCarousel({
+	        navText: ['<i class="angle left icon"></i>', '<i class="angle right icon"></i>'],
+	        loop: false,
+	        margin: 0,
+	        nav: false,
+	        //navContainer: 'owl-carousel',
+	        autoplay: false,
+	        autoplayTimeout: 4000,
+	        autoplayHoverPause: true,
+	        animateIn: 'fadeIn',
+	        dots:true,
+	        responsive: {
+	            0: {
+	                items: 1
+	            },
+	            480: {
+	                items: 1
+	            },
+	            769: {
+	                items: 2
+	            }
+	        }
+	    }); 
+	});  
+	//]]>
+	</script>    
+
+	<?php 
+	// Module type 2 Function.......................................End
+	} ?>
+
+	<?php } else { ?>
+
+<h1 style="color:red;">Enable ( Responsive banner ) Module via Admin = System -> Configuration-> MKS RESPONSIVE BANNER-> General Setting </h1>
+
+ <?php } ?>

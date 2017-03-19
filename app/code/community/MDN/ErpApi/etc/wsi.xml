@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:typens="urn:{{var wsdl.name}}"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+             xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+             name="{{var wsdl.name}}"
+             targetNamespace="urn:{{var wsdl.name}}">
+    <wsdl:types>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:{{var wsdl.name}}">
+            
+
+    <wsdl:portType name="{{var wsdl.handler}}PortType">
+<!-- BEGIN PORT TYPES -->
+
+            
+<!-- END PORT TYPES -->
+    </wsdl:portType>
+    <wsdl:binding name="{{var wsdl.handler}}Binding" type="typens:{{var wsdl.handler}}PortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        
+<!-- BEGIN BINDINGS -->
+            <!-- BEGIN CUSTOMER BINDINGS -->
+        <wsdl:operation name="erpapi_test">
+            <soap:operation soapAction="" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+            <!-- END CUSTOMER BINDINGS -->
+<!-- END BINDINGS -->
+    </wsdl:binding>
+</wsdl:definitions>

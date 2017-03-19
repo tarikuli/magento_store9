@@ -1,0 +1,17 @@
+<jstranslator>
+    <amount-tendered translate="message" module="webpos">
+        <message>Amount Tendered</message>
+    </amount-tendered>
+    <payment-mentods translate="message" module="webpos">
+        <message>Payment methods</message>
+    </payment-mentods>
+    <message-one translate="message" module="webpos">
+      <message>Please add product to cart to add cart discount</message>
+    </message-one>
+    <message-two translate="message" module="webpos">
+      <message>This feature is not available for offline mode</message>
+    </message-two>
+    <message-three translate="message" module="webpos">
+      <message>Order comment has been saved successfully!</message>
+    </message-three>
+</jstranslator>

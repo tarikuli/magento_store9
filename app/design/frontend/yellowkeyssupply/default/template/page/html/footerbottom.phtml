@@ -1,0 +1,138 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     rwd_default
+ * @copyright   Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+
+<?php
+	$background  = $this->getBackgroundImage($this->getSkinUrl('images/footerbottom.png'));
+?>
+<section class="footer-bottom" style="background-image:url(<?php echo $background['image_url'] ?>);">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-3 col-xs-12">
+				<img class="fblogo" src="<?php echo $this->getSkinUrl('images/logo-white.png'); ?>"/>
+
+				<div class="footer-links">
+					<h4><?php echo Mage::getModel('cms/block')->load("about_us")->getTitle(); ?></h4>
+					<?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('about_us')->toHtml();?>
+				</div> 
+
+				<div class="block-social footer-links">
+					<h4>Follow US</h4>
+					<ul>
+                        <li>
+                            <a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                        </li>
+
+                        <li>
+                            <a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+                        </li>
+
+                        <li>
+                            <a href="#"><i class="fa fa-google-plus" aria-hidden="true"></i></i></a>
+                        </li>
+
+                    </ul>
+				</div>
+				
+
+			</div>
+			<div class="col-lg-3 col-xs-6">
+				<div class="footer-links">
+					<h4><?php echo Mage::getModel('cms/block')->load("footer_information_links")->getTitle(); ?></h4>
+					<?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('footer_information_links')->toHtml();?>
+				</div> 
+
+				<div class="footer-links contact-links">
+					<h4><?php echo Mage::getModel('cms/block')->load("footer_contact_information")->getTitle(); ?></h4>
+					<?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('footer_contact_information')->toHtml();?>
+				</div> 
+			</div>
+			<div class="col-lg-2 col-xs-6">
+				<div class="footer-links">
+					<h4><?php echo Mage::getModel('cms/block')->load("footer_why_buy")->getTitle(); ?></h4>
+					<?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('footer_why_buy')->toHtml();?>
+				</div> 
+
+				<div class="footer-links">
+					<h4><?php echo Mage::getModel('cms/block')->load("footer_account_links")->getTitle(); ?></h4>
+					<?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('footer_account_links')->toHtml();?>
+				</div> 
+			</div>
+			<div class="col-lg-4 col-sm-12 col-xs-12">
+				<div id="socialTabs" >
+				 <!-- Nav tabs -->
+				  <ul class="nav nav-tabs nav-justified" role="tablist">
+				    <li role="presentation"><a href="#social-facebook" aria-controls="social-facebook" class="facebook active" role="tab">Facebook</a></li>
+				    <li role="presentation"><a href="#social-twitter" aria-controls="social-twitter" class="twitter" role="tab">Twitter</a></li>
+				    <li role="presentation"><a href="#social-google" aria-controls="social-google" class="google" role="tab">Google</a></li> 
+				  </ul>
+
+				  <!-- Tab panes -->
+				  <div class="tab-content">
+				    <div role="tabpanel" class="tab-pane active" id="social-facebook">facebook</div>
+				    <div role="tabpanel" class="tab-pane" id="social-twitter">Twitter</div>
+				    <div role="tabpanel" class="tab-pane" id="social-google">Google</div> 
+				  </div>
+				</div>	
+			</div>
+		</div>
+	</div> 
+</section>
+
+<section class="footer__copyrights">
+
+  <div class="container">
+
+    <div class="col-lg-6">© Copyright 2016. Yellow Keys Supply</div>
+
+    <div class="col-lg-6 oraiko">
+    	<a target="_blank" href="http://www.oraiko.com/web-design/" title="website design company">Web Design</a> &amp;
+  		<a target="_blank" href="http://www.oraiko.com/custom-web-development/" title="web development company">Web Developed</a> by
+  		<a target="_blank" href="http://www.oraiko.com" title="software development company"><img class="oraiko-logo" src="<?php echo $this->getSkinUrl('images/logo-oraiko.png')?>" alt="Oraiko software development company" width="100"></a>
+  	</div>
+
+  </div>
+
+</section>
+
+<?php if(!Mage::getSingleton('customer/session')->isLoggedIn()): ?>
+	<section class="ui modal basic require-login">
+	  <div class="header">
+	  	<img src="<?php echo $this->getSkinUrl('images/logo-white.png'); ?>"/> 
+	  </div>
+	  <div class="content">
+	      
+	      <div class="description"> 
+	      	<p>You need to have account with   <?php echo Mage::app()->getStore()->getFrontendName();?> before you can purchase any product from this web page.</p>
+	      	<p>
+		  		<a href="<?php echo Mage::getBaseUrl().'customer/account/login'?>" class="button login">Login</a>
+		  		<a href="<?php echo Mage::getBaseUrl().'customer/account/create'?>" class="button login">Register</a> 
+	  		</p>
+	       
+	    </div>
+	  </div> 
+	</section>
+<?php endif; ?>

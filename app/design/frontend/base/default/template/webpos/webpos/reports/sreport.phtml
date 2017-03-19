@@ -1,0 +1,118 @@
+
+<?php
+$data = $this->getSalesInfo();
+if (count($data) > 0) {
+    ?>
+    <style>
+        .dataTable-gird { height:auto;}
+    </style>
+    <div class="container">
+        <div class="row">
+            <div class="dataTable-gird">
+                <table id="report_till">
+                    <tr>
+                        <td>
+                            <div class="tablezreport">
+                                <table id="sreport_table" class="table-bordered webpos_bordered_table">
+                                    <thead>  
+                                        <?php if ($data['type'] == 'cashier'): ?>
+                                        <th><?php echo $this->__('Cashier'); ?></th>
+                                    <?php elseif ($data['type'] == 'location'): ?>
+                                        <th><?php echo $this->__('Location'); ?></th>  
+                                    <?php elseif ($data['type'] == 'customer_group'): ?>
+                                        <th><?php echo $this->__('Customer Group'); ?></th> 
+                                    <?php elseif ($data['type'] == 'payment'): ?>
+                                        <th><?php echo $this->__('Payment Method'); ?></th>  
+                                    <?php elseif ($data['type'] == 'general'): ?>
+                                        <th><?php echo $this->__('Cashier'); ?></th>
+                                        <th><?php echo $this->__('Payment Method'); ?></th>
+                                    <?php endif; ?> 
+                                    <th class="text-right text-uppercase"><?php echo $this->__('Sales'); ?></th>                      
+                                    <th class="text-center text-uppercase"><?php echo $this->__('Total Orders'); ?></th>                      
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        if (count($data['data']) > 0):
+                                            if ($data['type'] == 'general') {
+                                                $totals = array();
+                                                foreach ($data['data'] as $key => $salesData) {
+                                                    $count = 0;
+                                                    foreach ($salesData['sales'] as $paymentCode => $sales) {
+                                                        $totals[$paymentCode]['name'] = $sales['name'];
+                                                        $totals[$paymentCode]['sales'] += $sales['sales'];
+                                                        $totals[$paymentCode]['orders'] += $sales['total_orders'];
+                                                        ?>
+                                                        <tr>
+                                                            <td><?php echo ($count != 0) ? "" : $salesData['name'];
+                                    $count++;
+                                                        ?></td>
+                                                            <td><?php echo $sales['name']; ?></td>
+                                                            <td class="text-right"><?php echo Mage::helper('core')->currency($sales['sales'], true, false); ?></td>
+                                                            <td class="text-center"><?php echo $sales['total_orders']; ?></td>
+                                                        </tr>
+                                                        <?php
+                                                    }
+                                                }
+                                                $count = 0;
+                                                $totalSales = $totalOrders = 0;
+                                                foreach ($totals as $total) {
+                                                    $totalSales += $total['sales'];
+                                                    $totalOrders += $total['orders'];
+                                                    ?>
+                                                    <tr style="font-weight: bold;">
+                                                        <td class="text-uppercase"><?php echo ($count != 0) ? "" : $this->__('Totals');
+                                                    $count++;
+                                                    ?></td>
+                                                        <td><?php echo $total['name']; ?></td>
+                                                        <td class="text-right"><?php echo Mage::helper('core')->currency($total['sales'], true, false); ?></td>
+                                                        <td class="text-center"><?php echo $total['orders']; ?></td>
+                                                    </tr>
+                                                    <?php
+                                                }
+                                                ?>
+                                                <tr style="font-weight: bold;">
+                                                    <td><?php echo ""; ?></td>
+                                                    <td><?php echo ""; ?></td>
+                                                    <td class="text-right"><?php echo Mage::helper('core')->currency($totalSales, true, false); ?></td>
+                                                    <td class="text-center"><?php echo $totalOrders; ?></td>
+                                                </tr>
+                                                <tr style="font-weight: bold;border-top: 2px #777 solid;">
+                                                    <td colspan="2" class="text-center text-uppercase"><?php echo $this->__('Discounts'); ?></td>
+                                                    <td class="text-right"><?php echo Mage::helper('core')->currency($data['discount'], true, false); ?></td>
+                                                    <td class="text-center"><?php echo number_format(($data['discount'] / $totalSales * 100), 2, '.', '') . "%"; ?></td>
+                                                </tr>
+                                                <tr style="font-weight: bold;">
+                                                    <td colspan="2" class="text-center text-uppercase"><?php echo $this->__('Tax'); ?></td>
+                                                    <td class="text-right"><?php echo Mage::helper('core')->currency($data['tax'], true, false); ?></td>
+                                                    <td class="text-center"><?php echo number_format(($data['tax'] / $totalSales * 100), 2, '.', '') . "%"; ?></td>
+                                                </tr>
+                                                <?php
+                                            } else {
+                                                foreach ($data['data'] as $key => $salesData) {
+                                                    ?>
+                                                    <tr>
+                                                        <td><?php echo $salesData['name']; ?></td>
+                                                        <td><?php echo Mage::helper('core')->currency($salesData['sales'], true, false); ?></td>
+                                                        <td><?php echo $salesData['total_orders']; ?></td>
+                                                    </tr>
+                                                    <?php
+                                                }
+                                            }
+                                        else:
+                                            ?>
+                                            <tr><td colspan="<?php echo ($data['type'] == 'general') ? '4' : '3'; ?>" class="text-center"><?php echo $this->__('No Data'); ?></td></tr>
+    <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php
+}else {
+    echo "<h5 style='margin-top: 40px;margin-left: 50px;font-weight: bold;text-align: center;'> No Data </h5>";
+}
+?>

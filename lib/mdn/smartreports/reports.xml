@@ -1,0 +1,2170 @@
+<?xml version="1.0"?>
+<reports>
+
+    <new_customers>
+        <id>1</id>
+        <name>New customers</name>
+        <comment>New customer account creation</comment>
+        <width>100%</width>
+        <group>customer</group>
+        <renderer>line</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(created_at,'{group_by_date}') as x,
+                                    count(*) as y
+                                from
+                                    {prefix}customer_entity
+                                where
+                                    created_at >= "{date_from}"
+                                    and created_at <= "{date_to}"
+                                    and store_id in ({sm_store})
+                                group by DATE_FORMAT(created_at,'{group_by_date}')
+                                order by created_at]]></sql>
+    </new_customers>
+
+    <customer_per_store>
+        <id>2</id>
+        <name>Customers per store</name>
+        <comment>New customer account creation per store</comment>
+        <group>customer</group>
+        <width>50%</width>
+        <renderer>pie</renderer>
+        <y_label>Customers</y_label>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    concat(tbl_website.name, '<br>', tbl_store.name) as x,
+                                    count(*) as y
+                                from
+                                    {prefix}customer_entity tbl_customer
+                                    inner join {prefix}core_website tbl_website on (tbl_customer.website_id = tbl_website.website_id)
+                                    inner join {prefix}core_store tbl_store on (tbl_customer.store_id = tbl_store.store_id)
+                                where
+                                    created_at >= "{date_from}"
+                                    and created_at <= "{date_to}"
+                                    and tbl_store.store_id in ({sm_store})
+                                    group by tbl_store.store_id]]></sql>
+
+    </customer_per_store>
+
+    <customer_per_group>
+        <id>3</id>
+        <name>Customers per group</name>
+        <comment>New customer account creation per group</comment>
+        <group>customer</group>
+        <width>50%</width>
+        <renderer>pie</renderer>
+        <onclick>
+            <action>popup_url</action>
+            <url>adminhtml/SmartReport_Reports/ExtractDetails</url>
+            <param_name>group_id</param_name>
+        </onclick>
+        <y_label>Customers</y_label>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    concat(customer_group_id, '|', customer_group_code) as x,
+                                    count(*) as y
+                                from
+                                    {prefix}customer_entity tbl_customer
+                                    inner join {prefix}customer_group on (customer_group_id = group_id)
+                                where
+                                    created_at >= "{date_from}"
+                                    and created_at <= "{date_to}"
+                                    and tbl_customer.store_id in ({sm_store})
+                                    group by customer_group_code]]>
+        </sql>
+        <extract_sql>
+            <![CDATA[select
+                                    tbl_customer.entity_id as Id,
+                                    concat(tbl_firstname.value, ' ', tbl_lastname.value) as 'Customer',
+                                    email as 'Email'
+                                from
+                                    {prefix}customer_entity tbl_customer
+                                    inner join {prefix}customer_entity_varchar tbl_firstname on (tbl_firstname.entity_id = tbl_customer.entity_id)
+                                    inner join {prefix}eav_attribute tbl_firstname_attribute on (tbl_firstname_attribute.attribute_id = tbl_firstname.attribute_id)
+                                    inner join {prefix}customer_entity_varchar tbl_lastname on (tbl_lastname.entity_id = tbl_customer.entity_id)
+                                    inner join {prefix}eav_attribute tbl_lastname_attribute on (tbl_lastname_attribute.attribute_id = tbl_lastname.attribute_id)
+                                where
+                                    tbl_customer.created_at >= "{date_from}"
+                                    and tbl_customer.created_at <= "{date_to}"
+                                    and tbl_firstname_attribute.attribute_code = 'firstname'
+                                    and tbl_lastname_attribute.attribute_code = 'lastname'
+                                    and tbl_customer.group_id = {group_id}
+                                    and tbl_customer.store_id in ({sm_store})
+                    ]]>
+        </extract_sql>
+    </customer_per_group>
+
+    <customer_sales_per_group>
+        <id>31</id>
+        <name>Sales total per customer group</name>
+        <group>customer</group>
+        <width>50%</width>
+        <renderer>pie</renderer>
+        <y_label>Customers</y_label>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    concat(tbl_group.customer_group_id, '|', tbl_group.customer_group_code) as x,
+                                    sum(base_grand_total * base_to_global_rate) as y
+                                from
+                                    {prefix}customer_entity tbl_customer
+                                    inner join {prefix}customer_group tbl_group on (tbl_group.customer_group_id = tbl_customer.group_id)
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.customer_id = tbl_customer.entity_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    tbl_group.customer_group_code]]>
+        </sql>
+    </customer_sales_per_group>
+
+    <top_customer_sales_count>
+        <id>33</id>
+        <name>Top customer</name>
+        <comment>Customer with the most orders</comment>
+        <width>50%</width>
+        <group>customer</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Customer>
+                    <renderer>link</renderer>
+                    <url>adminhtml/customer/edit</url>
+                    <param_name>id</param_name>
+                    <param_value>Id</param_value>
+                    <align>left</align>
+                </Customer>
+                <Sales_count>
+                    <align>center</align>
+                </Sales_count>
+                <Sales_total>
+                    <align>right</align>
+                </Sales_total>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    tbl_customer.entity_id as Id,
+                                    concat(tbl_firstname.value, ' ', tbl_lastname.value) as 'Customer',
+                                    email as 'Email',
+                                    count(*) as 'Sales count',
+                                    TRUNCATE(SUM(grand_total * base_to_global_rate), 0) as 'Sales total'
+                                from
+                                    {prefix}customer_entity tbl_customer
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.customer_id = tbl_customer.entity_id)
+                                    inner join {prefix}customer_entity_varchar tbl_firstname on (tbl_firstname.entity_id = tbl_customer.entity_id)
+                                    inner join {prefix}eav_attribute tbl_firstname_attribute on (tbl_firstname_attribute.attribute_id = tbl_firstname.attribute_id)
+                                    inner join {prefix}customer_entity_varchar tbl_lastname on (tbl_lastname.entity_id = tbl_customer.entity_id)
+                                    inner join {prefix}eav_attribute tbl_lastname_attribute on (tbl_lastname_attribute.attribute_id = tbl_lastname.attribute_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.state not in ('canceled')
+                                    and tbl_firstname_attribute.attribute_code = 'firstname'
+                                    and tbl_lastname_attribute.attribute_code = 'lastname'
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by email
+                                order by
+                                    sum(grand_total) desc
+                                ]]></sql>
+    </top_customer_sales_count>
+
+    <customer_per_country>
+        <id>4</id>
+        <name>Customers per country</name>
+        <group>customer</group>
+        <width>50%</width>
+        <renderer>pie</renderer>
+        <onclick>
+            <action>popup_url</action>
+            <url>adminhtml/SmartReport_Reports/ExtractDetails</url>
+            <param_name>country_id</param_name>
+        </onclick>
+        <y_label>Customers</y_label>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    tbl_country.value as x,
+                                    count(*) as y
+                                from
+                                    {prefix}customer_entity tbl_customer
+                                    inner join {prefix}customer_entity_int tbl_address_id on (tbl_customer.entity_id = tbl_address_id.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_address on (tbl_attribute_address.attribute_id = tbl_address_id.attribute_id)
+                                    inner join {prefix}customer_address_entity tbl_address on (tbl_address.entity_id = tbl_address_id.value)
+                                    inner join {prefix}customer_address_entity_varchar tbl_country on (tbl_country.entity_id = tbl_address.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_country on (tbl_attribute_country.attribute_id = tbl_country.attribute_id)
+
+                                where
+                                    tbl_customer.created_at >= "{date_from}"
+                                    and tbl_customer.created_at <= "{date_to}"
+                                    and tbl_attribute_address.attribute_code = 'default_shipping'
+                                    and tbl_attribute_country.attribute_code = 'country_id'
+                                    and tbl_customer.store_id in ({sm_store})
+                                group by
+                                    tbl_country.value
+                                order by
+                                    count(*) desc
+                                    ]]></sql>
+        <extract_sql>
+            <![CDATA[select
+                                    tbl_customer.entity_id as Id,
+                                    concat(tbl_firstname.value, ' ', tbl_lastname.value) as 'Customer',
+                                    email as 'Email'
+                                from
+                                    {prefix}customer_entity tbl_customer
+                                    inner join {prefix}customer_entity_int tbl_address_id on (tbl_customer.entity_id = tbl_address_id.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_address on (tbl_attribute_address.attribute_id = tbl_address_id.attribute_id)
+                                    inner join {prefix}customer_address_entity tbl_address on (tbl_address.entity_id = tbl_address_id.value)
+                                    inner join {prefix}customer_address_entity_varchar tbl_country on (tbl_country.entity_id = tbl_address.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_country on (tbl_attribute_country.attribute_id = tbl_country.attribute_id)
+                                    inner join {prefix}customer_entity_varchar tbl_firstname on (tbl_firstname.entity_id = tbl_customer.entity_id)
+                                    inner join {prefix}eav_attribute tbl_firstname_attribute on (tbl_firstname_attribute.attribute_id = tbl_firstname.attribute_id)
+                                    inner join {prefix}customer_entity_varchar tbl_lastname on (tbl_lastname.entity_id = tbl_customer.entity_id)
+                                    inner join {prefix}eav_attribute tbl_lastname_attribute on (tbl_lastname_attribute.attribute_id = tbl_lastname.attribute_id)
+                                where
+                                    tbl_customer.created_at >= "{date_from}"
+                                    and tbl_customer.created_at <= "{date_to}"
+                                    and tbl_attribute_address.attribute_code = 'default_shipping'
+                                    and tbl_attribute_country.attribute_code = 'country_id'
+                                    and tbl_country.value = "{country_id}"
+                                    and tbl_firstname_attribute.attribute_code = 'firstname'
+                                    and tbl_lastname_attribute.attribute_code = 'lastname'
+                                    and tbl_customer.store_id in ({sm_store})
+                    ]]>
+        </extract_sql>
+    </customer_per_country>
+
+    <approved_reviews>
+        <id>5</id>
+        <name>Approved reviews</name>
+        <comment>New reviews</comment>
+        <width>100%</width>
+        <group>reviews</group>
+        <renderer>line</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(created_at,'{group_by_date}') as x,
+                                    count(*) as y
+                                from
+                                    {prefix}review tbl_review
+                                    inner join {prefix}review_status tbl_review_status on (tbl_review.status_id = tbl_review_status.status_id)
+                                where
+                                    status_code = 'Approved'
+                                    and created_at >= "{date_from}"
+                                    and created_at <= "{date_to}"
+                                group by
+                                    DATE_FORMAT(created_at,'{group_by_date}')
+                                order by
+                                    created_at]]></sql>
+    </approved_reviews>
+
+    <best_rated_products>
+        <id>6</id>
+        <name>Best rated products</name>
+        <width>50%</width>
+        <group>reviews</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Reviews>
+                    <align>center</align>
+                </Reviews>
+                <Note>
+                    <align>right</align>
+                </Note>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>left</align>
+                </Sku>
+            </columns>
+        </table>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    tbl_product.entity_id as Id,
+                                    sku as Sku,
+                                    tbl_product_name.value as Product,
+                                    vote_count as Reviews,
+                                    TRUNCATE(avg(vote_value_sum / vote_count), 1) as Note
+                                from
+                                    {prefix}catalog_product_entity tbl_product
+                                    inner join {prefix}rating_option_vote_aggregated tbl_rate on (tbl_product.entity_id = tbl_rate.entity_pk_value)
+                                    inner join {prefix}catalog_product_entity_varchar tbl_product_name on (tbl_product_name.entity_id = tbl_product.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_name on (tbl_product_name.attribute_id = tbl_attribute_name.attribute_id)
+                                where
+                                    tbl_attribute_name.attribute_code = 'name'
+                                    and tbl_product_name.store_id = 0
+                                    and tbl_rate.store_id in ({sm_store})
+                                group by
+                                    tbl_product.entity_id
+                                order by
+                                    avg(vote_value_sum / vote_count) desc
+                                ]]></sql>
+    </best_rated_products>
+
+    <worst_rated_products>
+        <id>61</id>
+        <name>Worst rated products</name>
+        <width>50%</width>
+        <group>reviews</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Reviews>
+                    <align>center</align>
+                </Reviews>
+                <Note>
+                    <align>right</align>
+                </Note>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>left</align>
+                </Sku>
+            </columns>
+        </table>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    tbl_product.entity_id as Id,
+                                    sku as Sku,
+                                    tbl_product_name.value as Product,
+                                    vote_count as Reviews,
+                                    TRUNCATE(avg(vote_value_sum / vote_count), 1) as Note
+                                from
+                                    {prefix}catalog_product_entity tbl_product
+                                    inner join {prefix}rating_option_vote_aggregated tbl_rate on (tbl_product.entity_id = tbl_rate.entity_pk_value)
+                                    inner join {prefix}catalog_product_entity_varchar tbl_product_name on (tbl_product_name.entity_id = tbl_product.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_name on (tbl_product_name.attribute_id = tbl_attribute_name.attribute_id)
+                                where
+                                    tbl_attribute_name.attribute_code = 'name'
+                                    and tbl_product_name.store_id = 0
+                                    and tbl_rate.store_id in ({sm_store})
+                                group by
+                                    tbl_product.entity_id
+                                order by
+                                    avg(vote_value_sum / vote_count) asc
+                                ]]></sql>
+    </worst_rated_products>
+
+    <order_count_per_payment>
+        <id>7</id>
+        <name>Orders per payment method</name>
+        <width>100%</width>
+        <group>paymentmethod</group>
+        <renderer>line</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') as x,
+                                    tbl_payment.method as w,
+                                    count(*) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_payment tbl_payment on (tbl_order.entity_id = tbl_payment.parent_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(created_at,'{group_by_date}'),
+                                    tbl_payment.method
+                                order by
+                                    tbl_order.created_at asc
+                                ]]></sql>
+    </order_count_per_payment>
+
+    <order_total_per_payment>
+        <id>8</id>
+        <name>Orders total per payment method</name>
+        <width>100%</width>
+        <group>paymentmethod</group>
+        <renderer>line</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') as x,
+                                    tbl_payment.method as w,
+                                    truncate(sum(base_grand_total * base_to_global_rate), 0) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_payment tbl_payment on (tbl_order.entity_id = tbl_payment.parent_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(created_at,'{group_by_date}'),
+                                    tbl_payment.method
+                                order by
+                                    tbl_order.created_at asc
+                                ]]></sql>
+    </order_total_per_payment>
+
+    <refund>
+        <id>9</id>
+        <name>Refund total</name>
+        <width>100%</width>
+        <group>refund</group>
+        <renderer>line</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <onclick>
+            <action>popup_url</action>
+            <url>adminhtml/SmartReport_Reports/ExtractDetails</url>
+            <param_name>extract_date</param_name>
+        </onclick>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(created_at,'{group_by_date}') as x,
+                                    sum(base_grand_total * base_to_global_rate) as y
+                                from
+                                    {prefix}sales_flat_creditmemo
+                                where
+                                    created_at >= "{date_from}"
+                                    and created_at <= "{date_to}"
+                                    and store_id in ({sm_store})
+                                group by DATE_FORMAT(created_at,'{group_by_date}')
+                                order by created_at]]></sql>
+        <extract_sql>
+            <![CDATA[select
+                                    tbl_cm.created_at `Date`,
+                                    tbl_cm.increment_id `Creditmemo`,
+                                    truncate(tbl_cm.grand_total, 2) `Total`,
+                                    concat(customer_firstname, ' ', customer_lastname) customer,
+                                    customer_email email
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_creditmemo tbl_cm on (tbl_order.entity_id = tbl_cm.order_id)
+                                where
+                                    DATE_FORMAT(tbl_cm.created_at,'{group_by_date}') = '{extract_date}'
+                                    and store_id in ({sm_store})
+                    ]]>
+        </extract_sql>
+    </refund>
+
+    <most_refunded_products>
+        <id>10</id>
+        <name>Most refunded products</name>
+        <width>50%</width>
+        <group>refund</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Count>
+                    <align>center</align>
+                </Count>
+                <Total>
+                    <align>right</align>
+                </Total>
+                <Refund_percent>
+                    <align>right</align>
+                </Refund_percent>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>left</align>
+                </sku>
+            </columns>
+        </table>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    tbl_product.entity_id Id,
+                                    tbl_product.sku,
+                                    tbl_product_name.value as Product,
+                                    count(distinct tbl_cm.entity_id) as "Count",
+                                    truncate(SUM(tbl_cm_item.base_row_total * base_to_global_rate), 2) as "Total",
+                                    truncate(count(distinct tbl_cm.entity_id) / avg(tbl_sales.sales_count) * 100, 0) as "Refund percent"
+                                from
+                                    {prefix}sales_flat_creditmemo_item tbl_cm_item
+                                    inner join {prefix}sales_flat_creditmemo tbl_cm on (tbl_cm.entity_id = tbl_cm_item.parent_id)
+                                    inner join {prefix}catalog_product_entity tbl_product on (tbl_cm_item.product_id = tbl_product.entity_id)
+                                    inner join {prefix}catalog_product_entity_varchar tbl_product_name on (tbl_product_name.entity_id = tbl_product.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_name on (tbl_product_name.attribute_id = tbl_attribute_name.attribute_id)
+                                    inner join (
+                                                    select
+                                                        product_id,
+                                                        count(*) as sales_count from {prefix}sales_flat_order_item
+                                                    where
+                                                        created_at >= "{date_from}"
+                                                        and created_at <= "{date_to}"
+                                                    group by
+                                                        product_id
+                                                ) tbl_sales on (tbl_sales.product_id = tbl_cm_item.product_id)
+                                where
+                                    tbl_cm.created_at >= "{date_from}"
+                                    and tbl_cm.created_at <= "{date_to}"
+                                    and tbl_attribute_name.attribute_code = 'name'
+                                    and tbl_product_name.store_id = 0
+                                    and tbl_cm.store_id in ({sm_store})
+                                group by
+                                    tbl_product.entity_id
+                                order by
+                                    count(*) desc
+                                ]]></sql>
+    </most_refunded_products>
+
+    <creditmemos>
+        <id>10015</id>
+        <name>Creditmemos</name>
+        <width>50%</width>
+        <group>refund</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Date>
+                    <align>center</align>
+                </Date>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Creditmemo>
+                    <renderer>link</renderer>
+                    <url>adminhtml/sales_creditmemo/view</url>
+                    <param_name>creditmemo_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Creditmemo>
+                <Total>
+                    <total>1</total>
+                    <align>right</align>
+                </Total>
+            </columns>
+        </table>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                        tbl_creditmemo.entity_id Id,
+                        tbl_creditmemo.increment_id Creditmemo,
+                        DATE_FORMAT(tbl_creditmemo.created_at, '%d %b %y') `Date`,
+                        truncate(tbl_creditmemo.grand_total * tbl_order.base_to_global_rate, 0) Total,
+                        concat(tbl_order.customer_firstname, ' ', tbl_order.customer_lastname) Customer
+                    from
+                        {prefix}sales_flat_creditmemo tbl_creditmemo
+                        inner join {prefix}sales_flat_order tbl_order on (tbl_order.entity_id = tbl_creditmemo.order_id)
+                    where
+                            tbl_creditmemo.created_at >= "{date_from}"
+                            and tbl_creditmemo.created_at <= "{date_to}"
+                            and tbl_order.status in ({order_statuses})
+                            and tbl_creditmemo.store_id in ({sm_store})
+                    order by
+                        tbl_creditmemo.created_at desc
+                                ]]></sql>
+    </creditmemos>
+
+    <product_sales_count>
+        <id>1000</id>
+        <name>Sales count</name>
+        <width>100%</width>
+        <group>product_detail</group>
+        <renderer>line</renderer>
+        <y_label>Sales</y_label>
+        <onclick>
+            <action>popup_url</action>
+            <url>adminhtml/SmartReport_Reports/ExtractDetails</url>
+            <title>Details</title>
+            <param_name>extract_date</param_name>
+        </onclick>
+        <sql><![CDATA[
+                                select
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') as x,
+                                    sum(qty_ordered) as y
+                                from
+                                    {prefix}sales_flat_order_item tbl_order_item
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and product_id = {product_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}')
+                                order by
+                                    tbl_order.created_at
+                                    ]]></sql>
+        <extract_sql>
+            <![CDATA[select
+                                    tbl_order.created_at,
+                                    tbl_order.increment_id,
+                                    tbl_order.status,
+                                    truncate(tbl_order.grand_total * base_to_global_rate, 2) `Order total`,
+                                    truncate(tbl_order_item.row_total * base_to_global_rate, 2) `Product total`,
+                                    concat(customer_firstname, ' ', customer_lastname) customer,
+                                    customer_email email
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') = '{extract_date}'
+                                    and product_id = {product_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                    ]]>
+        </extract_sql>
+    </product_sales_count>
+
+    <product_sales_total>
+        <id>10005678</id>
+        <name>Sales total</name>
+        <width>100%</width>
+        <group>product_detail</group>
+        <renderer>line</renderer>
+        <y_label>Sales total</y_label>
+        <area_sql_column>1</area_sql_column>
+        <onclick>
+            <action>popup_url</action>
+            <url>adminhtml/SmartReport_Reports/ExtractDetails</url>
+            <title>Details</title>
+            <param_name>extract_date</param_name>
+        </onclick>
+        <sql><![CDATA[
+                                select
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') as x,
+                                    sum(base_row_total * base_to_global_rate) as Price,
+                                    sum(base_cost) as Cost
+                                from
+                                    {prefix}sales_flat_order_item tbl_order_item
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and product_id = {product_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}')
+                                order by
+                                    tbl_order.created_at
+                                    ]]></sql>
+        <extract_sql>
+            <![CDATA[select
+                                    tbl_order.created_at,
+                                    tbl_order.increment_id,
+                                    truncate(tbl_order.grand_total, 2) `Order total`,
+                                    truncate(tbl_order_item.row_total, 2) `Product total`,
+                                    concat(customer_firstname, ' ', customer_lastname) customer,
+                                    customer_email email
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') = '{extract_date}'
+                                    and product_id = {product_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                    ]]>
+        </extract_sql>
+    </product_sales_total>
+
+    <product_sales_total_cumulative>
+        <id>101</id>
+        <name>Cumulative Sales</name>
+        <width>100%</width>
+        <group>product_detail</group>
+        <renderer>area</renderer>
+        <y_label>Sales</y_label>
+        <cumulative>1</cumulative>
+        <sql><![CDATA[
+                                select * from (
+                                select
+                                    DATE_FORMAT(tbl_orderitem.created_at,'{group_by_date}') as x,
+                                    "Invoiced" as w,
+                                    sum(base_row_total * base_to_global_rate) as y,
+                                    tbl_orderitem.created_at
+                                from
+                                    {prefix}sales_flat_order_item tbl_orderitem
+                                    inner join {prefix}sales_flat_order tbl_order on (order_id = entity_id)
+                                where
+                                    tbl_orderitem.created_at >= "{date_from}"
+                                    and tbl_orderitem.created_at <= "{date_to}"
+                                    and product_id = {product_id}
+                                    and qty_invoiced > 0
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(tbl_orderitem.created_at,'{group_by_date}')
+                                ) tbl_main
+                                order by created_at
+
+                                    ]]></sql>
+    </product_sales_total_cumulative>
+
+    <product_sales_per_country>
+        <id>11</id>
+        <name>Sales per country</name>
+        <width>50%</width>
+        <group>product_detail</group>
+        <renderer>pie</renderer>
+        <y_label>Sales</y_label>
+        <onclick>
+            <action>goto_url</action>
+            <url>adminhtml/SmartReport_Reports/CountryDetail</url>
+            <param_name>country_id</param_name>
+        </onclick>
+        <sql><![CDATA[
+                                select
+                                    country_id as x,
+                                    country_id,
+                                    SUM(qty_invoiced * base_to_global_rate) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                    inner join {prefix}sales_flat_order_address tbl_address on (tbl_order.billing_address_id = tbl_address.entity_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and product_id = {product_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    country_id
+                                order by
+                                    count(*) desc
+                                    ]]></sql>
+    </product_sales_per_country>
+
+
+    <product_sales_per_store>
+        <id>14</id>
+        <name>Sales per store</name>
+        <group>product_detail</group>
+        <width>50%</width>
+        <renderer>pie</renderer>
+        <y_label>Sales</y_label>
+        <sql><![CDATA[select
+                                    concat(tbl_website.name, '<br>', tbl_store.name) as x,
+                                    SUM(qty_invoiced) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                    inner join {prefix}core_store tbl_store on (tbl_order.store_id = tbl_store.store_id)
+                                    inner join {prefix}core_website tbl_website on (tbl_store.website_id = tbl_website.website_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and product_id = {product_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    tbl_store.store_id]]></sql>
+    </product_sales_per_store>
+
+    <product_average_sell_price>
+        <id>13</id>
+        <name>Average sale price and cost</name>
+        <width>100%</width>
+        <group>product_detail</group>
+        <renderer>line</renderer>
+        <y_label>Avg Price</y_label>
+        <area_sql_column>1</area_sql_column>
+        <sql><![CDATA[
+                                select
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') as x,
+                                    avg(price * base_to_global_rate) as 'Sale price',
+                                    avg(base_cost) as 'Cost'
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and product_id = {product_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}')
+                                order by
+                                    tbl_order.created_at asc
+                                    ]]></sql>
+    </product_average_sell_price>
+
+    <product_cross_sells>
+        <id>12</id>
+        <name>Best cross sells</name>
+        <width>50%</width>
+        <group>product_detail</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Qty>
+                    <align>center</align>
+                </Qty>
+                <sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>left</align>
+                </sku>
+            </columns>
+        </table>
+        <sql><![CDATA[
+                                select
+                                    tbl_order_item.product_id Id,
+                                    sku,
+                                    name,
+                                    count(qty_invoiced) as Qty
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and product_id <> {product_id}
+                                    and order_id in (select order_id from {prefix}sales_flat_order_item where product_id = {product_id})
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    product_id
+                                order by
+                                    count(qty_invoiced) desc
+                                    ]]></sql>
+    </product_cross_sells>
+
+    <product_sales>
+        <id>129</id>
+        <name>Sales</name>
+        <width>100%</width>
+        <group>product_detail</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Date>
+                    <align>center</align>
+                </Date>
+                <Row_Total>
+                    <align>right</align>
+                </Row_Total>
+                <Order>
+                    <renderer>link</renderer>
+                    <url>adminhtml/sales_order/view</url>
+                    <param_name>order_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Order>
+                <Status>
+                    <align>center</align>
+                </Status>
+            </columns>
+        </table>
+        <sql><![CDATA[
+                                select
+                                    tbl_order.entity_id `Id`,
+                                    tbl_order.increment_id `Order`,
+                                    DATE_FORMAT(tbl_order.created_at, '%d %b %y') `Date`,
+                                    concat(tbl_order.customer_firstname, ' ', tbl_order.customer_lastname) Customer,
+                                    truncate(tbl_order_item.base_row_total * base_to_global_rate, 2) `Row Total`,
+                                    tbl_order.status `Status`
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and product_id = {product_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                order by
+                                    tbl_order.created_at desc
+                                    ]]></sql>
+    </product_sales>
+
+    <bestseller_qty>
+        <id>1389</id>
+        <name>Best seller (quantity)</name>
+        <width>50%</width>
+        <group>bestseller</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <Qty>
+                    <align>center</align>
+                </Qty>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>left</align>
+                </Sku>
+            </columns>
+        </table>
+        <sql><![CDATA[
+                                select
+                                    product_id Id,
+                                    sku Sku,
+                                    name Product,
+                                    SUM(qty_invoiced) as Qty
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    product_id
+                                order by
+                                    SUM(qty_invoiced) desc
+                                    ]]></sql>
+    </bestseller_qty>
+
+    <bestseller_general>
+        <id>146768</id>
+        <name>Best seller (total)</name>
+        <width>50%</width>
+        <group>bestseller</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <Total>
+                    <align>right</align>
+                </Total>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>left</align>
+                </Sku>
+            </columns>
+        </table>
+        <sql><![CDATA[
+                                select
+                                    product_id Id,
+                                    sku Sku,
+                                    name Product,
+                                    truncate(sum(base_row_total * base_to_global_rate), 0) as Total
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    product_id
+                                order by
+                                    sum(base_row_total * base_to_global_rate) desc
+                                    ]]></sql>
+    </bestseller_general>
+
+    <invoice_total>
+        <id>150</id>
+        <name>Total invoiced</name>
+        <width>100%</width>
+        <group>invoice</group>
+        <renderer>area</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <area_sql_column>1</area_sql_column>
+        <onclick>
+            <action>popup_url</action>
+            <url>adminhtml/SmartReport_Reports/ExtractDetails</url>
+            <param_name>extract_date</param_name>
+        </onclick>
+        <sql><![CDATA[
+                                select
+                                    DATE_FORMAT(tbl_invoice.created_at,'{group_by_date}') as x,
+                                    sum((tbl_invoice.base_grand_total - tbl_invoice.base_tax_amount) * tbl_invoice.base_to_global_rate) as Subtotal,
+                                    sum(tbl_invoice.base_tax_amount * tbl_invoice.base_to_global_rate) as Taxes,
+                                    sum(tbl_invoice.base_shipping_amount * tbl_invoice.base_to_global_rate) as Shipping
+                                from
+                                    {prefix}sales_flat_invoice tbl_invoice
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.entity_id = tbl_invoice.order_id)
+                                where
+                                    tbl_invoice.created_at >= "{date_from}"
+                                    and tbl_invoice.created_at <= "{date_to}"
+                                    and tbl_invoice.store_id in ({sm_store})
+                                    and tbl_order.status in ({order_statuses})
+                                group by
+                                    DATE_FORMAT(tbl_invoice.created_at,'{group_by_date}')
+                                order by
+                                    tbl_invoice.created_at
+                                    ]]></sql>
+        <extract_sql>
+            <![CDATA[select
+                                    tbl_invoice.created_at `Invoice date`,
+                                    tbl_invoice.increment_id Invoice,
+                                    tbl_order.increment_id `Order`,
+                                    truncate(tbl_invoice.grand_total * tbl_order.base_to_global_rate, 2) `Total`,
+                                    concat(customer_firstname, ' ', customer_lastname) customer,
+                                    customer_email email,
+                                    concat(tbl_website.name, '<br>', tbl_store.name) as `Store`
+                                from
+                                    {prefix}sales_flat_invoice tbl_invoice
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.entity_id = tbl_invoice.order_id)
+                                    inner join {prefix}core_store tbl_store on (tbl_order.store_id = tbl_store.store_id)
+                                    inner join {prefix}core_website tbl_website on (tbl_store.website_id = tbl_website.website_id)
+                                where
+                                    DATE_FORMAT(tbl_invoice.created_at,'{group_by_date}') = '{extract_date}'
+                                    and tbl_order.store_id in ({sm_store})
+                    ]]>
+        </extract_sql>
+    </invoice_total>
+
+    <invoice_country>
+        <id>151</id>
+        <name>Invoiced per country</name>
+        <width>50%</width>
+        <group>invoice</group>
+        <available_for_dashboard>1</available_for_dashboard>
+        <renderer>pie</renderer>
+        <onclick>
+            <action>goto_url</action>
+            <url>adminhtml/SmartReport_Reports/CountryDetail</url>
+            <param_name>country_id</param_name>
+        </onclick>
+        <sql><![CDATA[
+                                select
+                                    country_id as x,
+                                    country_id,
+                                    sum(tbl_invoice.base_grand_total * tbl_order.base_to_global_rate) as y
+                                from
+                                    {prefix}sales_flat_invoice tbl_invoice
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.entity_id = tbl_invoice.order_id)
+                                    inner join {prefix}sales_flat_order_address tbl_address on (tbl_order.billing_address_id = tbl_address.entity_id)
+                                where
+                                    tbl_invoice.created_at >= "{date_from}"
+                                    and tbl_invoice.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    country_id
+                                order by
+                                    sum(tbl_invoice.base_grand_total) desc
+                                    ]]></sql>
+    </invoice_country>
+
+    <invoice_store>
+        <id>152</id>
+        <name>Invoiced per store</name>
+        <width>50%</width>
+        <group>invoice</group>
+        <available_for_dashboard>1</available_for_dashboard>
+        <renderer>pie</renderer>
+        <sql><![CDATA[
+                                select
+                                    concat(tbl_website.name, '<br>', tbl_store.name) as x,
+                                    sum(tbl_invoice.base_grand_total * tbl_order.base_to_global_rate) as y
+                                from
+                                    {prefix}sales_flat_invoice tbl_invoice
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.entity_id = tbl_invoice.order_id)
+                                    inner join {prefix}core_store tbl_store on (tbl_order.store_id = tbl_store.store_id)
+                                    inner join {prefix}core_website tbl_website on (tbl_store.website_id = tbl_website.website_id)
+                                where
+                                    tbl_invoice.created_at >= "{date_from}"
+                                    and tbl_invoice.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    tbl_order.store_id
+                                order by
+                                    sum(tbl_invoice.base_grand_total) desc
+                                    ]]></sql>
+    </invoice_store>
+
+    <category_sales>
+        <id>160</id>
+        <name>Top category sales</name>
+        <width>100%</width>
+        <group>category</group>
+        <renderer>stackbar</renderer>
+        <area_sql_column>1</area_sql_column>
+        <available_for_dashboard>1</available_for_dashboard>
+        <y_label>Sales</y_label>
+        <onclick>
+            <action>goto_url</action>
+            <url>adminhtml/SmartReport_Reports/CategoryDetail</url>
+            <param_name>category_id</param_name>
+        </onclick>
+        <sql><![CDATA[select
+                                    concat(tbl_category.entity_id, '|', tbl_category_name.value) as x,
+                                    sum(row_total * tbl_order.base_to_global_rate) as Sales
+                                from
+                                    {prefix}sales_flat_order_item tbl_order_item
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.entity_id = tbl_order_item.order_id)
+                                    inner join {prefix}catalog_category_product tbl_category_product on (tbl_order_item.product_id = tbl_category_product.product_id)
+                                    inner join {prefix}catalog_category_entity tbl_category on (tbl_category.entity_id = tbl_category_product.category_id)
+                                    inner join {prefix}catalog_category_entity_varchar tbl_category_name on (tbl_category.entity_id = tbl_category_name.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_name on (tbl_attribute_name.attribute_id = tbl_category_name.attribute_id)
+                                where
+                                    tbl_order_item.created_at >= "{date_from}"
+                                    and tbl_order_item.created_at <= "{date_to}"
+                                    and qty_invoiced > 0
+                                    and tbl_category_name.store_id = 0
+                                    and tbl_attribute_name.attribute_code = 'name'
+                                    and tbl_order_item.store_id in ({sm_store})
+                                group by
+                                    tbl_category_name.value
+                                order by
+                                    sum(row_total) desc
+                                ]]></sql>
+    </category_sales>
+
+    <manufacturer_general_sales>
+        <id>170</id>
+        <name>Sales per manufacturer</name>
+        <width>100%</width>
+        <group>manufacturer</group>
+        <renderer>bar</renderer>
+        <y_label>Sales</y_label>
+        <onclick>
+            <action>goto_url</action>
+            <url>adminhtml/SmartReport_Reports/ManufacturerDetail</url>
+            <param_name>manufacturer_id</param_name>
+        </onclick>
+        <sql><![CDATA[select
+                                    tbl_manufacturer_name.value as x,
+                                    concat(tbl_manufacturer_id.value, '|', tbl_manufacturer_name.value) as x,
+                                    sum(row_total) as y
+                                from
+                                    {prefix}sales_flat_order_item tbl_order_item
+                                    inner join {prefix}catalog_product_entity_int tbl_manufacturer_id on (tbl_order_item.product_id = tbl_manufacturer_id.entity_id)
+                                    inner join {prefix}eav_attribute_option tbl_option on (tbl_option.option_id = tbl_manufacturer_id.value)
+                                    inner join {prefix}eav_attribute_option_value tbl_manufacturer_name on (tbl_manufacturer_name.option_id = tbl_option.option_id)
+                                where
+                                    tbl_order_item.created_at >= "{date_from}"
+                                    and tbl_order_item.created_at <= "{date_to}"
+                                    and qty_invoiced > 0
+                                    and tbl_manufacturer_id.store_id = 0
+                                    and tbl_manufacturer_id.attribute_id = {manufacturer_attribute_id}
+                                    and tbl_manufacturer_name.store_id = 0
+                                    and tbl_order_item.store_id in ({sm_store})
+                                group by
+                                    tbl_manufacturer_name.value
+                                order by
+                                    sum(row_total) desc
+                                limit
+                                    0, 15
+                                ]]></sql>
+    </manufacturer_general_sales>
+
+    <manufacturer_general_products>
+        <id>17157</id>
+        <name>Products per manufacturer</name>
+        <width>100%</width>
+        <group>manufacturer</group>
+        <renderer>bar</renderer>
+        <y_label>Products</y_label>
+        <sql><![CDATA[select
+                                    tbl_manufacturer_name.value as x,
+                                    count(*) as y
+                                from
+                                    {prefix}catalog_product_entity tbl_product
+                                    inner join {prefix}catalog_product_entity_int tbl_manufacturer_id on (tbl_product.entity_id = tbl_manufacturer_id.entity_id)
+                                    inner join {prefix}eav_attribute_option tbl_option on (tbl_option.option_id = tbl_manufacturer_id.value)
+                                    inner join {prefix}eav_attribute_option_value tbl_manufacturer_name on (tbl_manufacturer_name.option_id = tbl_option.option_id)
+                                where
+                                    tbl_product.created_at >= "{date_from}"
+                                    and tbl_product.created_at <= "{date_to}"
+                                    and tbl_manufacturer_id.store_id = 0
+                                    and tbl_manufacturer_id.attribute_id = {manufacturer_attribute_id}
+                                    and tbl_manufacturer_name.store_id = 0
+                                group by
+                                    tbl_manufacturer_name.value
+                                order by
+                                    count(*) desc
+                                limit
+                                    0, 15
+                                ]]></sql>
+    </manufacturer_general_products>
+
+    <categorydetail_sales>
+        <id>1705675</id>
+        <name>Sales</name>
+        <width>100%</width>
+        <group>categorydetail</group>
+        <renderer>line</renderer>
+        <y_label>Sales</y_label>
+        <area_sql_column>1</area_sql_column>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(created_at,'{group_by_date}') as x,
+                                    sum(base_row_total) as Sales,
+                                    sum(base_cost * qty_ordered) as Cost
+                                from
+                                    {prefix}sales_flat_order_item tbl_order_item
+                                    inner join {prefix}catalog_category_product tbl_category_product on (tbl_order_item.product_id = tbl_category_product.product_id)
+                                where
+                                    tbl_order_item.created_at >= "{date_from}"
+                                    and tbl_order_item.created_at <= "{date_to}"
+                                    and qty_invoiced > 0
+                                    and tbl_category_product.category_id = {category_id}
+                                    and tbl_order_item.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(created_at,'{group_by_date}')
+                                order by
+                                    created_at
+                                ]]></sql>
+    </categorydetail_sales>
+
+    <categorydetail_topsales_qty>
+        <id>171</id>
+        <name>Best seller (qty)</name>
+        <width>50%</width>
+        <group>categorydetail</group>
+        <renderer>table</renderer>
+        <y_label>Sales</y_label>
+        <table>
+            <columns>
+                <Sales>
+                    <align>center</align>
+                </Sales>
+                <Id>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Id>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    tbl_order_item.product_id Id,
+                                    sku Sku,
+                                    name Product,
+                                    truncate(sum(qty_invoiced), 0) as Sales
+                                from
+                                    {prefix}sales_flat_order_item tbl_order_item
+                                    inner join {prefix}catalog_category_product tbl_category_product on (tbl_order_item.product_id = tbl_category_product.product_id)
+                                where
+                                    tbl_order_item.created_at >= "{date_from}"
+                                    and tbl_order_item.created_at <= "{date_to}"
+                                    and qty_invoiced > 0
+                                    and tbl_category_product.category_id = {category_id}
+                                    and tbl_order_item.store_id in ({sm_store})
+                                group by
+                                    tbl_order_item.product_id
+                                order by
+                                    sum(qty_invoiced) desc
+                                ]]></sql>
+    </categorydetail_topsales_qty>
+
+    <categorydetail_topsales_total>
+        <id>173</id>
+        <name>Best seller (total)</name>
+        <width>50%</width>
+        <group>categorydetail</group>
+        <renderer>table</renderer>
+        <y_label>Sales</y_label>
+        <table>
+            <columns>
+                <Sales>
+                    <align>center</align>
+                </Sales>
+                <Id>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Id>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    tbl_order_item.product_id Id,
+                                    sku Sku,
+                                    name Product,
+                                    truncate(sum(base_row_total), 0) as Sales
+                                from
+                                    {prefix}sales_flat_order_item tbl_order_item
+                                    inner join {prefix}catalog_category_product tbl_category_product on (tbl_order_item.product_id = tbl_category_product.product_id)
+                                where
+                                    tbl_order_item.created_at >= "{date_from}"
+                                    and tbl_order_item.created_at <= "{date_to}"
+                                    and qty_invoiced > 0
+                                    and tbl_category_product.category_id = {category_id}
+                                    and tbl_order_item.store_id in ({sm_store})
+                                group by
+                                    tbl_order_item.product_id
+                                order by
+                                    sum(row_total) desc
+                                ]]></sql>
+    </categorydetail_topsales_total>
+
+    <categorydetail_most_refunded>
+        <id>175</id>
+        <name>Most refunded</name>
+        <width>50%</width>
+        <group>categorydetail</group>
+        <renderer>table</renderer>
+        <y_label>Sales</y_label>
+        <table>
+            <columns>
+                <Sales>
+                    <align>center</align>
+                </Sales>
+                <Id>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Id>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    tbl_order_item.product_id Id,
+                                    sku Sku,
+                                    name Product,
+                                    truncate(sum(qty_refunded), 0) as Refund
+                                from
+                                    {prefix}sales_flat_order_item tbl_order_item
+                                    inner join {prefix}catalog_category_product tbl_category_product on (tbl_order_item.product_id = tbl_category_product.product_id)
+                                where
+                                    tbl_order_item.created_at >= "{date_from}"
+                                    and tbl_order_item.created_at <= "{date_to}"
+                                    and qty_invoiced > 0
+                                    and tbl_category_product.category_id = {category_id}
+                                    and qty_refunded > 0
+                                    and tbl_order_item.store_id in ({sm_store})
+                                group by
+                                    tbl_order_item.product_id
+                                order by
+                                    sum(qty_refunded) desc
+                                ]]></sql>
+    </categorydetail_most_refunded>
+
+    <categorydetail_best_rated_products>
+        <id>176</id>
+        <name>Best rated products</name>
+        <width>50%</width>
+        <group>categorydetail</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Note>
+                    <align>center</align>
+                </Note>
+                <Reviews>
+                    <align>center</align>
+                </Reviews>
+                <Id>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Id>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    tbl_product.entity_id Id,
+                                    sku as Sku,
+                                    tbl_product_name.value as Product,
+                                    vote_count as Reviews,
+                                    TRUNCATE(avg(vote_value_sum / vote_count), 1) as Note
+                                from
+                                    {prefix}catalog_product_entity tbl_product
+                                    inner join {prefix}catalog_category_product tbl_category_product on (tbl_product.entity_id = tbl_category_product.product_id)
+                                    inner join {prefix}rating_option_vote_aggregated tbl_rate on (tbl_product.entity_id = tbl_rate.entity_pk_value)
+                                    inner join {prefix}catalog_product_entity_varchar tbl_product_name on (tbl_product_name.entity_id = tbl_product.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_name on (tbl_product_name.attribute_id = tbl_attribute_name.attribute_id)
+                                where
+                                    tbl_attribute_name.attribute_code = 'name'
+                                    and tbl_product_name.store_id = 0
+                                    and tbl_category_product.category_id = {category_id}
+                                    and tbl_rate.store_id in ({sm_store})
+                                group by
+                                    tbl_product.entity_id
+                                order by
+                                    avg(vote_value_sum / vote_count) desc
+                                ]]></sql>
+    </categorydetail_best_rated_products>
+
+    <customer_detail_sales>
+        <id>200</id>
+        <name>Sales</name>
+        <width>100%</width>
+        <group>customer_detail</group>
+        <renderer>line</renderer>
+        <y_label>Sales</y_label>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(created_at,'{group_by_date}') as x,
+                                    sum(base_grand_total * tbl_order.base_to_global_rate) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.state not in('canceled')
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.customer_id = {customer_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(created_at,'{group_by_date}')
+                                order by
+                                    created_at
+                                ]]></sql>
+    </customer_detail_sales>
+
+
+
+    <customer_detail_top_products>
+        <id>201</id>
+        <name>Top products</name>
+        <width>50%</width>
+        <group>customer_detail</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Qty>
+                    <align>center</align>
+                </Qty>
+                <Total>
+                    <align>right</align>
+                </Total>
+                <Id>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Id>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    tbl_product_name.entity_id as Id,
+                                    sku as Sku,
+                                    tbl_product_name.value as Product,
+                                    truncate(sum(qty_invoiced), 0) Qty,
+                                    truncate(sum(base_row_total * tbl_order.base_to_global_rate), 0) Total
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                    inner join {prefix}catalog_product_entity_varchar tbl_product_name on (tbl_product_name.entity_id = tbl_order_item.product_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_name on (tbl_product_name.attribute_id = tbl_attribute_name.attribute_id)
+                                where
+                                    tbl_attribute_name.attribute_code = 'name'
+                                    and tbl_product_name.store_id = 0
+                                    and tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.customer_id = {customer_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    product_id
+                                order by
+                                    sum(row_total) desc
+                                ]]></sql>
+    </customer_detail_top_products>
+
+    <customer_detail_creditmemos>
+        <id>1022015</id>
+        <name>Creditmemos</name>
+        <width>50%</width>
+        <group>customer_detail</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Date>
+                    <align>center</align>
+                </Date>
+                <Total>
+                    <total>1</total>
+                    <align>right</align>
+                </Total>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                        tbl_creditmemo.increment_id Creditmemo,
+                        DATE_FORMAT(tbl_creditmemo.created_at, '%d %b %y') `Date`,
+                        truncate(tbl_creditmemo.base_grand_total * tbl_order.base_to_global_rate, 0) Total
+                    from
+                        {prefix}sales_flat_creditmemo tbl_creditmemo
+                        inner join {prefix}sales_flat_order tbl_order on (tbl_order.entity_id = tbl_creditmemo.order_id)
+                    where
+                            tbl_creditmemo.created_at >= "{date_from}"
+                            and tbl_creditmemo.created_at <= "{date_to}"
+                            and tbl_order.customer_id = {customer_id}
+                            and tbl_order.status in ({order_statuses})
+                            and tbl_order.store_id in ({sm_store})
+                    order by
+                        tbl_creditmemo.created_at desc
+                                ]]></sql>
+    </customer_detail_creditmemos>
+
+
+    <countrydetail_sales>
+        <id>301</id>
+        <name>Sales</name>
+        <width>100%</width>
+        <group>countrydetail</group>
+        <renderer>line</renderer>
+        <y_label>Sales</y_label>
+        <sql><![CDATA[
+                                select
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') as x,
+                                    sum(base_grand_total * tbl_order.base_to_global_rate) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_address tbl_address on (tbl_order.billing_address_id = tbl_address.entity_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and country_id = "{country_id}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}')
+                                order by
+                                    tbl_order.created_at
+                                    ]]></sql>
+    </countrydetail_sales>
+
+    <countrydetail_payment_methods>
+        <id>30235143</id>
+        <name>Sales per payment method</name>
+        <width>50%</width>
+        <group>countrydetail</group>
+        <renderer>pie</renderer>
+        <y_label>Sales</y_label>
+        <sql><![CDATA[
+                                select
+                                    tbl_payment.method as x,
+                                    count(*) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_address tbl_address on (tbl_order.billing_address_id = tbl_address.entity_id)
+                                    inner join {prefix}sales_flat_order_payment tbl_payment on (tbl_order.entity_id = tbl_payment.parent_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and country_id = "{country_id}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    tbl_payment.method
+                                order by
+                                    count(*) desc
+                                    ]]></sql>
+    </countrydetail_payment_methods>
+
+    <countrydetail_top_customer>
+        <id>302</id>
+        <name>Top customer</name>
+        <comment>Customer with the most orders</comment>
+        <width>50%</width>
+        <group>countrydetail</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Customer>
+                    <renderer>link</renderer>
+                    <url>adminhtml/customer/edit</url>
+                    <param_name>id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Customer>
+                <Sales_count>
+                    <align>center</align>
+                </Sales_count>
+                <Sales_total>
+                    <align>right</align>
+                </Sales_total>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    tbl_customer.entity_id as Id,
+                                    concat(tbl_firstname.value, ' ', tbl_lastname.value) as 'Customer',
+                                    tbl_customer.email as 'Email',
+                                    count(*) as 'Sales count',
+                                    TRUNCATE(SUM(base_grand_total * tbl_order.base_to_global_rate), 0) as 'Sales total'
+                                from
+                                    {prefix}customer_entity tbl_customer
+                                    inner join {prefix}sales_flat_order tbl_order on (tbl_order.customer_id = tbl_customer.entity_id)
+                                    inner join {prefix}customer_entity_varchar tbl_firstname on (tbl_firstname.entity_id = tbl_customer.entity_id)
+                                    inner join {prefix}eav_attribute tbl_firstname_attribute on (tbl_firstname_attribute.attribute_id = tbl_firstname.attribute_id)
+                                    inner join {prefix}customer_entity_varchar tbl_lastname on (tbl_lastname.entity_id = tbl_customer.entity_id)
+                                    inner join {prefix}eav_attribute tbl_lastname_attribute on (tbl_lastname_attribute.attribute_id = tbl_lastname.attribute_id)
+                                    inner join {prefix}sales_flat_order_address tbl_address on (tbl_order.billing_address_id = tbl_address.entity_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.state not in ('canceled')
+                                    and tbl_firstname_attribute.attribute_code = 'firstname'
+                                    and tbl_lastname_attribute.attribute_code = 'lastname'
+                                    and country_id = "{country_id}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by email
+                                order by
+                                    sum(grand_total) desc
+                                ]]></sql>
+    </countrydetail_top_customer>
+
+    <countrydetail_top_product>
+        <id>303</id>
+        <name>Best seller (total)</name>
+        <width>50%</width>
+        <group>countrydetail</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Total>
+                    <align>right</align>
+                </Total>
+                <Sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Sku>
+            </columns>
+        </table>
+        <sql><![CDATA[
+                                select
+                                    product_id Id,
+                                    sku Sku,
+                                    name Product,
+                                    truncate(sum(base_row_total * tbl_order.base_to_global_rate), 0) as Total
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                    inner join {prefix}sales_flat_order_address tbl_address on (tbl_order.billing_address_id = tbl_address.entity_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and country_id = "{country_id}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    product_id
+                                order by
+                                    SUM(row_total) desc
+                                    ]]></sql>
+    </countrydetail_top_product>
+
+    <cumulative_invoice_and_refund>
+        <id>401</id>
+        <name>Cumulative sales</name>
+        <width>100%</width>
+        <group>invoice</group>
+        <renderer>area</renderer>
+        <cumulative>1</cumulative>
+        <area_sql_column>1</area_sql_column>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[
+                                select
+                                    DATE_FORMAT(created_at,'{group_by_date}') as x,
+                                    sum((base_grand_total - base_tax_amount) * base_to_global_rate) as Invoiced
+                                from
+                                    {prefix}sales_flat_invoice
+                                where
+                                    created_at >= "{date_from}"
+                                    and created_at <= "{date_to}"
+                                    and store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(created_at,'{group_by_date}')
+                                order by
+                                    created_at
+                                    ]]></sql>
+    </cumulative_invoice_and_refund>
+
+
+    <manufacturerdetail_sales_history>
+        <id>89</id>
+        <name>Sales</name>
+        <width>100%</width>
+        <group>manufacturerdetail</group>
+        <renderer>line</renderer>
+        <y_label>Sales</y_label>
+        <area_sql_column>1</area_sql_column>
+        <sql><![CDATA[select
+                            DATE_FORMAT(tbl_order.created_at,'{group_by_date}') as x,
+                            SUM(base_row_total * tbl_order.base_to_global_rate) as Sales,
+                            SUM(base_cost * qty_ordered) as Cost
+                        from
+                            {prefix}sales_flat_order tbl_order
+                            inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                            inner join {prefix}catalog_product_entity_int tbl_manufacturer_id on (tbl_order_item.product_id = tbl_manufacturer_id.entity_id)
+                        where
+                            tbl_order.created_at >= "{date_from}"
+                            and tbl_order.created_at <= "{date_to}"
+                            and qty_invoiced > 0
+                            and tbl_manufacturer_id.store_id = 0
+                            and tbl_manufacturer_id.value = {manufacturer_id}
+                            and tbl_manufacturer_id.attribute_id = {manufacturer_attribute_id}
+                            and tbl_order.status in ({order_statuses})
+                            and tbl_order.store_id in ({sm_store})
+                        group by
+                            DATE_FORMAT(tbl_order.created_at,'{group_by_date}')
+                        order by
+                            tbl_order.created_at]]></sql>
+    </manufacturerdetail_sales_history>
+
+
+    <manufacturerdetail_bestseller>
+        <id>14633768</id>
+        <name>Best seller</name>
+        <width>50%</width>
+        <group>manufacturerdetail</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Total>
+                    <align>right</align>
+                </Total>
+                <Sales>
+                    <align>right</align>
+                </Sales>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>left</align>
+                </Sku>
+            </columns>
+        </table>
+        <sql><![CDATA[
+                                select
+                                    product_id Id,
+                                    sku Sku,
+                                    name Product,
+                                    truncate(SUM(qty_invoiced), 0) as Sales,
+                                    truncate(sum(row_total * tbl_order.base_to_global_rate), 0) as Total
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                    inner join {prefix}catalog_product_entity_int tbl_manufacturer_id on (tbl_order_item.product_id = tbl_manufacturer_id.entity_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and qty_invoiced > 0
+                                    and tbl_manufacturer_id.store_id = 0
+                                    and tbl_manufacturer_id.value = {manufacturer_id}
+                                    and tbl_manufacturer_id.attribute_id = {manufacturer_attribute_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    product_id
+                                order by
+                                    SUM(row_total) desc
+                                    ]]></sql>
+    </manufacturerdetail_bestseller>
+
+    <manufacturerdetail_sales>
+        <id>67798</id>
+        <name>Sales details</name>
+        <width>50%</width>
+        <group>manufacturerdetail</group>
+        <renderer>table</renderer>
+        <table>
+            <columns>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Date>
+                    <align>center</align>
+                </Date>
+                <Row_Total>
+                    <align>right</align>
+                </Row_Total>
+                <Order>
+                    <renderer>link</renderer>
+                    <url>adminhtml/sales_order/view</url>
+                    <param_name>order_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Order>
+                <Status>
+                    <align>center</align>
+                </Status>
+                <Qty>
+                    <align>center</align>
+                </Qty>
+            </columns>
+        </table>
+        <sql><![CDATA[
+                                select
+                                    tbl_order.entity_id `Id`,
+                                    tbl_order.increment_id `Order`,
+                                    DATE_FORMAT(tbl_order.created_at, '%d %b %y') `Date`,
+                                    concat(tbl_order.customer_firstname, ' ', tbl_order.customer_lastname) Customer,
+                                    tbl_order_item.sku `Sku`,
+                                    tbl_order_item.name `Product`,
+                                    truncate(tbl_order_item.qty_invoiced, 0) `Qty`,
+                                    truncate(tbl_order_item.base_row_total * tbl_order.base_to_global_rate, 0) `Row Total`,
+                                    tbl_order.status `Status`
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                    inner join {prefix}catalog_product_entity_int tbl_manufacturer_id on (tbl_order_item.product_id = tbl_manufacturer_id.entity_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and qty_invoiced > 0
+                                    and tbl_manufacturer_id.store_id = 0
+                                    and tbl_manufacturer_id.value = {manufacturer_id}
+                                    and tbl_manufacturer_id.attribute_id = {manufacturer_attribute_id}
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                order by
+                                    tbl_order.created_at desc
+                                    ]]></sql>
+    </manufacturerdetail_sales>
+
+
+    <manufacturerdetail_refunded_products>
+        <inherits>most_refunded_products</inherits>
+        <id>104353232</id>
+        <group>manufacturerdetail</group>
+        <available_for_dashboard>0</available_for_dashboard>
+        <sql><![CDATA[select
+                                    tbl_product.entity_id Id,
+                                    tbl_product.sku,
+                                    tbl_product_name.value as Product,
+                                    count(distinct tbl_cm.entity_id) as "Count",
+                                    truncate(SUM(tbl_cm_item.row_total * base_to_global_rate), 0) as "Total",
+                                    truncate(count(distinct tbl_cm.entity_id) / avg(tbl_sales.sales_count) * 100, 0) as "Refund percent"
+                                from
+                                    {prefix}sales_flat_creditmemo_item tbl_cm_item
+                                    inner join {prefix}sales_flat_creditmemo tbl_cm on (tbl_cm.entity_id = tbl_cm_item.parent_id)
+                                    inner join {prefix}catalog_product_entity tbl_product on (tbl_cm_item.product_id = tbl_product.entity_id)
+                                    inner join {prefix}catalog_product_entity_varchar tbl_product_name on (tbl_product_name.entity_id = tbl_product.entity_id)
+                                    inner join {prefix}eav_attribute tbl_attribute_name on (tbl_product_name.attribute_id = tbl_attribute_name.attribute_id)
+                                    inner join (
+                                                    select
+                                                        product_id,
+                                                        count(*) as sales_count
+                                                    from
+                                                        {prefix}sales_flat_order_item
+                                                    where
+                                                        created_at >= "{date_from}"
+                                                        and created_at <= "{date_to}"
+                                                        and store_id in ({sm_store})
+                                                    group by
+                                                        product_id
+                                                ) tbl_sales on (tbl_sales.product_id = tbl_cm_item.product_id)
+                                    inner join {prefix}catalog_product_entity_int tbl_manufacturer_id on (tbl_cm_item.product_id = tbl_manufacturer_id.entity_id)
+                                where
+                                    tbl_cm.created_at >= "{date_from}"
+                                    and tbl_cm.created_at <= "{date_to}"
+                                    and tbl_attribute_name.attribute_code = 'name'
+                                    and tbl_product_name.store_id = 0
+                                    and tbl_manufacturer_id.store_id = 0
+                                    and tbl_manufacturer_id.value = {manufacturer_id}
+                                    and tbl_manufacturer_id.attribute_id = {manufacturer_attribute_id}
+                                    and tbl_cm.store_id in ({sm_store})
+                                group by
+                                    tbl_product.entity_id
+                                order by
+                                    count(*) desc
+                                ]]></sql>
+    </manufacturerdetail_refunded_products>
+
+    <order_count_per_shippingmethod>
+        <id>73232</id>
+        <name>Orders per shipping method</name>
+        <width>100%</width>
+        <group>shippingmethod</group>
+        <renderer>line</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') as x,
+                                    shipping_description as w,
+                                    count(*) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(created_at,'{group_by_date}'),
+                                    shipping_description
+                                order by
+                                    tbl_order.created_at asc
+                                ]]></sql>
+    </order_count_per_shippingmethod>
+
+    <shipping_total_per_shippingmethod>
+        <id>7323232</id>
+        <name>Total per shipping method</name>
+        <width>100%</width>
+        <group>shippingmethod</group>
+        <renderer>line</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(tbl_order.created_at,'{group_by_date}') as x,
+                                    shipping_description as w,
+                                    SUM(base_shipping_amount * tbl_order.base_to_global_rate) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    DATE_FORMAT(created_at,'{group_by_date}'),
+                                    shipping_description
+                                order by
+                                    tbl_order.created_at asc
+                                ]]></sql>
+    </shipping_total_per_shippingmethod>
+
+    <coupon_code_overview>
+        <id>3144333</id>
+        <name>Coupons use</name>
+        <width>100%</width>
+        <group>couponcode</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <rule_id>
+                    <hidden>1</hidden>
+                </rule_id>
+                <Discount_total>
+                    <align>right</align>
+                </Discount_total>
+                <Number_of_use>
+                    <align>center</align>
+                </Number_of_use>
+                <Coupon_code>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/CouponCodeDetails</url>
+                    <param_name>coupon_code</param_name>
+                    <param_value>Coupon code</param_value>
+                    <align>center</align>
+                </Coupon_code>
+                <From>
+                    <align>center</align>
+                </From>
+                <To>
+                    <align>center</align>
+                </To>
+                <Sales_total>
+                    <align>right</align>
+                </Sales_total>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    tbl_rule.rule_id,
+                                    tbl_rule.name `Campaign`,
+                                    tbl_rule.from_date `From`,
+                                    tbl_rule.to_date `To`,
+                                    tbl_coupon_code.code `Coupon code`,
+                                    count(*) as `Number of use`,
+                                    truncate(sum(base_grand_total * base_to_global_rate), 0) as `Sales total`,
+                                    truncate(sum(base_discount_amount* base_to_global_rate), 0) as `Discount total`
+                                from
+                                    {prefix}salesrule_coupon tbl_coupon_code
+                                    inner join {prefix}salesrule tbl_rule on (tbl_coupon_code.rule_id = tbl_rule.rule_id)
+                                    left join {prefix}sales_flat_order tbl_order on (tbl_coupon_code.code = tbl_order.coupon_code)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                group by
+                                    tbl_coupon_code.code
+                                having
+                                    SUM(tbl_order.grand_total > 0)
+                                order by
+                                    tbl_rule.rule_id desc
+                                ]]></sql>
+    </coupon_code_overview>
+
+
+    <coupon_code_sales>
+        <id>317777733</id>
+        <name>Sales</name>
+        <width>100%</width>
+        <group>couponcodedetails</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>0</available_for_dashboard>
+        <table>
+            <columns>
+                <Id>
+                    <hidden>1</hidden>
+                </Id>
+                <Order>
+                    <renderer>link</renderer>
+                    <url>adminhtml/sales_order/view</url>
+                    <param_name>order_id</param_name>
+                    <param_value>Id</param_value>
+                    <align>center</align>
+                </Order>
+                <Order_total>
+                    <align>right</align>
+                </Order_total>
+                <Discount_total>
+                    <align>right</align>
+                </Discount_total>
+                <Date>
+                    <align>center</align>
+                </Date>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    tbl_order.entity_id `Id`,
+                                    tbl_order.increment_id `Order`,
+                                    DATE_FORMAT(tbl_order.created_at, '%d %b %y') `Date`,
+                                    concat(tbl_order.customer_firstname, ' ', tbl_order.customer_lastname) Customer,
+                                    truncate(tbl_order.base_grand_total * base_to_global_rate, 2) `Order total`,
+                                    truncate(tbl_order.base_discount_amount * base_to_global_rate, 2) `Discount total`,
+                                    tbl_order.status `Status`,
+                                    tbl_order.store_name `Store`
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                    and tbl_order.coupon_code = "{coupon_code}"
+                                order by
+                                    tbl_order.created_at desc
+                                ]]></sql>
+    </coupon_code_sales>
+
+
+    <coupon_use_per_country>
+        <id>434311</id>
+        <name>Coupon use per country</name>
+        <width>50%</width>
+        <group>couponcodedetails</group>
+        <renderer>pie</renderer>
+        <y_label>Sales</y_label>
+        <sql><![CDATA[
+                                select
+                                    country_id as x,
+                                    country_id,
+                                    SUM(truncate(tbl_order.base_grand_total * base_to_global_rate, 2)) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_address tbl_address on (tbl_order.billing_address_id = tbl_address.entity_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                    and tbl_order.coupon_code = "{coupon_code}"
+                                group by
+                                    country_id
+                                order by
+                                    count(*) desc
+                                    ]]></sql>
+    </coupon_use_per_country>
+
+    <coupon_use_per_store>
+        <id>14998</id>
+        <name>Coupon use per store</name>
+        <group>couponcodedetails</group>
+        <width>50%</width>
+        <renderer>pie</renderer>
+        <y_label>Sales</y_label>
+        <sql><![CDATA[select
+                                    concat(tbl_website.name, '<br>', tbl_store.name) as x,
+                                    SUM(truncate(tbl_order.base_grand_total * base_to_global_rate, 2)) as y
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}core_store tbl_store on (tbl_order.store_id = tbl_store.store_id)
+                                    inner join {prefix}core_website tbl_website on (tbl_store.website_id = tbl_website.website_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                    and tbl_order.coupon_code = "{coupon_code}"
+                                group by
+                                    tbl_store.store_id]]></sql>
+    </coupon_use_per_store>
+
+    <coupon_code_products>
+        <id>333317777733</id>
+        <name>Products purchased with current coupon</name>
+        <width>100%</width>
+        <group>couponcodedetails</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>0</available_for_dashboard>
+        <table>
+            <columns>
+                <product_id>
+                    <hidden>1</hidden>
+                </product_id>
+                <Sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/catalog_product/edit</url>
+                    <param_name>id</param_name>
+                    <param_value>product_id</param_value>
+                </Sku>
+                <Order_total>
+                    <align>right</align>
+                </Order_total>
+                <Qty_invoiced>
+                    <align>center</align>
+                </Qty_invoiced>
+                <Total>
+                    <align>right</align>
+                </Total>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                                    product_id,
+                                    sku as Sku,
+                                    name as Product,
+                                    truncate(SUM(qty_invoiced), 0) as `Qty invoiced`,
+                                    truncate(SUM(base_row_total * base_to_global_rate), 0) as `Total`
+                                from
+                                    {prefix}sales_flat_order tbl_order
+                                    inner join {prefix}sales_flat_order_item tbl_order_item on (tbl_order.entity_id = tbl_order_item.order_id)
+                                where
+                                    tbl_order.created_at >= "{date_from}"
+                                    and tbl_order.created_at <= "{date_to}"
+                                    and tbl_order.status in ({order_statuses})
+                                    and tbl_order.store_id in ({sm_store})
+                                    and tbl_order.coupon_code = "{coupon_code}"
+                                group by
+                                    sku
+                                order by
+                                    SUM(qty_invoiced) desc
+                                ]]></sql>
+    </coupon_code_products>
+
+
+</reports>

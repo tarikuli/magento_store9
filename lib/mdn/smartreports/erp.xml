@@ -1,0 +1,548 @@
+<?xml version="1.0"?>
+<reports>
+
+    <po_per_supplier>
+        <id>433233</id>
+        <name>PO per supplier</name>
+        <width>50%</width>
+        <group>purchase</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <sup_id>
+                    <hidden>1</hidden>
+                </sup_id>
+                <Supplier>
+                    <renderer>link</renderer>
+                    <url>adminhtml/Purchase_Suppliers/Edit</url>
+                    <param_name>sup_id</param_name>
+                    <param_value>sup_id</param_value>
+                    <align>left</align>
+                </Supplier>
+                <PO_count>
+                    <align>center</align>
+                </PO_count>
+                <Total>
+                    <align>right</align>
+                </Total>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                            sup_id,
+                            sup_name Supplier,
+                            count(distinct po_num) `PO count`,
+                            truncate(SUM(pop_qty * (pop_price_ht_base + pop_eco_tax_base + pop_extended_costs_base)), 0) `Total`
+                        from
+                            {prefix}purchase_supplier
+                            inner join {prefix}purchase_order on (sup_id = po_sup_num)
+                            inner join {prefix}purchase_order_product on (po_num = pop_order_num)
+                        where
+                            po_date >= "{date_from}"
+                            and po_date <= "{date_to}"
+                            and po_status in ('waiting_for_delivery', 'complete')
+                        group by
+                            sup_name
+                        order by
+                            count(distinct po_num) desc
+                        ]]></sql>
+    </po_per_supplier>
+
+    <expected_po>
+        <id>433234</id>
+        <name>Expected PO</name>
+        <width>50%</width>
+        <group>purchase</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <PO_Id>
+                    <hidden>1</hidden>
+                </PO_Id>
+                <PO_Increment_Id>
+                    <renderer>link</renderer>
+                    <url>adminhtml/Purchase_Orders/Edit</url>
+                    <param_name>po_num</param_name>
+                    <param_value>PO_Id</param_value>
+                    <align>center</align>
+                </PO_Increment_Id>
+                <Percent_Delivered>
+                    <align>center</align>
+                </Percent_Delivered>
+                <Next_Supply_Date>
+                    <align>center</align>
+                </Next_Supply_Date>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                            po_num PO_Id,
+                            po_order_id PO_Increment_Id,
+                            sup_name Supplier,
+                            po_delivery_percent Percent_Delivered,
+                            po_supply_date Next_Supply_Date
+                        from
+                           {prefix}purchase_order
+                           inner join {prefix}purchase_supplier on (sup_id = po_sup_num)
+                        where
+                            po_supply_date >= "{date_from}"
+                            and po_supply_date <= "{date_to}"
+                            and po_status = 'waiting_for_delivery'
+                        order by
+                            po_supply_date desc
+                        ]]></sql>
+    </expected_po>
+
+    <incoming_po>
+        <id>4377733</id>
+        <name>Incoming PO</name>
+        <width>50%</width>
+        <group>purchase</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <sup_id>
+                    <hidden>1</hidden>
+                </sup_id>
+                <po_num>
+                    <hidden>1</hidden>
+                </po_num>
+                <Supplier>
+                    <renderer>link</renderer>
+                    <url>adminhtml/Purchase_Suppliers/Edit</url>
+                    <param_name>sup_id</param_name>
+                    <param_value>sup_id</param_value>
+                    <align>left</align>
+                </Supplier>
+                <PO_count>
+                    <align>center</align>
+                </PO_count>
+                <Total>
+                    <align>right</align>
+                </Total>
+                <Date>
+                    <align>center</align>
+                </Date>
+                <Po>
+                    <renderer>link</renderer>
+                    <url>adminhtml/Purchase_Orders/Edit</url>
+                    <param_name>po_num</param_name>
+                    <param_value>po_num</param_value>
+                    <align>center</align>
+                </Po>
+                <Quantity>
+                    <align>center</align>
+                </Quantity>
+                <Progress>
+                    <align>center</align>
+                </Progress>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                            po_supply_date `Date`,
+                            sup_id,
+                            po_num,
+                            sup_name Supplier,
+                            po_order_id Po,
+                            sum(pop_qty - pop_supplied_qty) Quantity,
+                            concat(po_delivery_percent, ' %') Progress
+                        from
+                            {prefix}purchase_supplier
+                            inner join {prefix}purchase_order on (sup_id = po_sup_num)
+                            inner join {prefix}purchase_order_product on (po_num = pop_order_num)
+                        where
+                            po_status in ('waiting_for_delivery', 'complete')
+                        group by
+                            po_order_id
+                        order by
+                            po_supply_date desc
+                        ]]></sql>
+    </incoming_po>
+
+    <po_distribution_per_supplier>
+        <id>26769</id>
+        <name>PO distribution per Supplier</name>
+        <group>purchase</group>
+        <width>50%</width>
+        <renderer>pie</renderer>
+        <y_label>PO</y_label>
+        <available_for_dashboard>1</available_for_dashboard>
+        <onclick>
+            <action>goto_url</action>
+            <url>adminhtml/Purchase_Suppliers/Edit</url>
+            <param_name>sup_id</param_name>
+        </onclick>
+        <sql><![CDATA[select
+                                    concat(sup_id, '|', sup_name) as x,
+                                    count(*) as y
+                                from
+                                    {prefix}purchase_supplier
+                                    inner join {prefix}purchase_order on (sup_id = po_sup_num)
+                                where
+                                    po_date >= "{date_from}"
+                                    and po_date <= "{date_to}"
+                                    and po_status in ('waiting_for_delivery', 'complete')
+                                group by
+                                    sup_name
+                            ]]></sql>
+    </po_distribution_per_supplier>
+
+    <purchase_per_month>
+        <id>267997</id>
+        <name>Purchased total</name>
+        <group>purchase</group>
+        <width>50%</width>
+        <renderer>line</renderer>
+        <y_label>PO</y_label>
+        <available_for_dashboard>1</available_for_dashboard>
+        <onclick>
+            <action>popup_url</action>
+            <url>adminhtml/SmartReport_Reports/ExtractDetails</url>
+            <param_name>extract_date</param_name>
+        </onclick>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(po_date,'{group_by_date}') as x,
+                                    truncate(SUM(pop_qty * (pop_price_ht_base + pop_eco_tax_base + pop_extended_costs_base)), 0) as y
+                                from
+                                    {prefix}purchase_supplier
+                                    inner join {prefix}purchase_order on (sup_id = po_sup_num)
+                                    inner join {prefix}purchase_order_product on (po_num = pop_order_num)
+                                where
+                                    po_date >= "{date_from}"
+                                    and po_date <= "{date_to}"
+                                    and po_status in ('waiting_for_delivery', 'complete')
+                                group by
+                                    DATE_FORMAT(po_date,'{group_by_date}')
+                                order by
+                                    po_date
+                            ]]></sql>
+        <extract_sql><![CDATA[select
+                                    sup_name Supplier,
+                                    po_order_id `Po`,
+                                    po_date `Date`,
+                                    truncate(SUM(pop_qty * (pop_price_ht_base + pop_eco_tax_base + pop_extended_costs_base)), 0) as Total,
+                                    po_status Status
+                                from
+                                    {prefix}purchase_supplier
+                                    inner join {prefix}purchase_order on (sup_id = po_sup_num)
+                                    inner join {prefix}purchase_order_product on (po_num = pop_order_num)
+                                where
+                                    DATE_FORMAT(po_date,'{group_by_date}') = '{extract_date}'
+                                group by
+                                    po_num
+                                order by
+                                    po_date
+                            ]]></extract_sql>
+    </purchase_per_month>
+
+    <purchase_total_for_supplier>
+        <id>267607997</id>
+        <name>Purchased total</name>
+        <group>supplier_detail</group>
+        <width>100%</width>
+        <renderer>line</renderer>
+        <y_label>Purchase orders total</y_label>
+        <onclick>
+            <action>popup_url</action>
+            <url>adminhtml/SmartReport_Reports/ExtractDetails</url>
+            <param_name>extract_date</param_name>
+        </onclick>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(po_date,'{group_by_date}') as x,
+                                    truncate(SUM(pop_qty * (pop_price_ht_base + pop_eco_tax_base + pop_extended_costs_base)), 0) as y
+                                from
+                                    {prefix}purchase_supplier
+                                    inner join {prefix}purchase_order on (sup_id = po_sup_num)
+                                    inner join {prefix}purchase_order_product on (po_num = pop_order_num)
+                                where
+                                    po_date >= "{date_from}"
+                                    and po_date <= "{date_to}"
+                                    and po_status in ('waiting_for_delivery', 'complete')
+                                    and sup_id = {supplier_id}
+                                group by
+                                    DATE_FORMAT(po_date,'{group_by_date}')
+                                order by
+                                    po_date
+                            ]]></sql>
+        <extract_sql><![CDATA[select
+                                    sup_name Supplier,
+                                    po_order_id `Po`,
+                                    po_date `Date`,
+                                    truncate(SUM(pop_qty * (pop_price_ht_base + pop_eco_tax_base + pop_extended_costs_base)), 0) as Total,
+                                    po_status Status
+                                from
+                                    {prefix}purchase_supplier
+                                    inner join {prefix}purchase_order on (sup_id = po_sup_num)
+                                    inner join {prefix}purchase_order_product on (po_num = pop_order_num)
+                                where
+                                    DATE_FORMAT(po_date,'{group_by_date}') = '{extract_date}'
+                                    and po_status in ('waiting_for_delivery', 'complete')
+                                    and sup_id = {supplier_id}
+                                group by
+                                    po_num
+                                order by
+                                    po_date
+                            ]]></extract_sql>
+    </purchase_total_for_supplier>
+
+    <purchase_count_for_supplier>
+        <id>267098997</id>
+        <name>Purchase order count</name>
+        <group>supplier_detail</group>
+        <width>100%</width>
+        <renderer>line</renderer>
+        <y_label>Purchase orders count</y_label>
+        <onclick>
+            <action>popup_url</action>
+            <url>adminhtml/SmartReport_Reports/ExtractDetails</url>
+            <param_name>extract_date</param_name>
+        </onclick>
+        <sql><![CDATA[select
+                                    DATE_FORMAT(po_date,'{group_by_date}') as x,
+                                    count(*) as y
+                                from
+                                    {prefix}purchase_supplier
+                                    inner join {prefix}purchase_order on (sup_id = po_sup_num)
+                                where
+                                    po_date >= "{date_from}"
+                                    and po_date <= "{date_to}"
+                                    and po_status in ('waiting_for_delivery', 'complete')
+                                    and sup_id = {supplier_id}
+                                group by
+                                    DATE_FORMAT(po_date,'{group_by_date}')
+                                order by
+                                    po_date
+                            ]]></sql>
+        <extract_sql><![CDATA[select
+                                    sup_name Supplier,
+                                    po_order_id `Po`,
+                                    po_date `Date`,
+                                    truncate(SUM(pop_qty * (pop_price_ht_base + pop_eco_tax_base + pop_extended_costs_base)), 0) as Total,
+                                    po_status Status
+                                from
+                                    {prefix}purchase_supplier
+                                    inner join {prefix}purchase_order on (sup_id = po_sup_num)
+                                    inner join {prefix}purchase_order_product on (po_num = pop_order_num)
+                                where
+                                    DATE_FORMAT(po_date,'{group_by_date}') = '{extract_date}'
+                                    and po_status in ('waiting_for_delivery', 'complete')
+                                    and sup_id = {supplier_id}
+                                group by
+                                    po_num
+                                order by
+                                    po_date
+                            ]]></extract_sql>
+
+    </purchase_count_for_supplier>
+
+    <average_reception_delay_for_supplier>
+        <id>2675445997</id>
+        <name>Average delay to receive goods</name>
+        <group>supplier_detail</group>
+        <width>100%</width>
+        <renderer>line</renderer>
+        <y_label>Delay (days)</y_label>
+        <sql><![CDATA[select
+                            DATE_FORMAT(po_date,'{group_by_date}') as x,
+                            DATEDIFF(sm_date, po_date) as y
+                        from
+                            {prefix}purchase_order
+                            inner join {prefix}purchase_order_product on (po_num = pop_order_num)
+                            inner join {prefix}stock_movement on (pop_product_id = sm_product_id and sm_po_num = po_num)
+                        where
+                            po_date >= "{date_from}"
+                            and po_date <= "{date_to}"
+                            and po_sup_num = {supplier_id}
+                        group by
+                            DATE_FORMAT(po_date,'{group_by_date}')
+                        order by
+                            po_date
+                            ]]></sql>
+    </average_reception_delay_for_supplier>
+
+    <product_stock_history>
+        <id>7679834</id>
+        <name>Stock level history</name>
+        <width>100%</width>
+        <group>product_detail</group>
+        <renderer>line</renderer>
+        <model>SmartReport/Source_Product_StockHistory</model>
+    </product_stock_history>
+
+    <product_average_purchase_price>
+        <id>567585890</id>
+        <name>Average buying price</name>
+        <width>100%</width>
+        <group>product_detail</group>
+        <renderer>line</renderer>
+        <y_label>Avg Buying Price</y_label>
+        <sql><![CDATA[
+                                select
+                                    DATE_FORMAT(po_date, '{group_by_date}') as x,
+                                    avg(pop_price_ht_base + pop_extended_costs_base) as y
+                                from
+                                    {prefix}purchase_order
+                                    inner join {prefix}purchase_order_product on (po_num = pop_order_num)
+                                where
+                                    po_date >= "{date_from}"
+                                    and po_date <= "{date_to}"
+                                    and pop_product_id = {product_id}
+                                group by
+                                    DATE_FORMAT(po_date,'{group_by_date}')
+                                order by
+                                    po_date asc
+                                    ]]></sql>
+    </product_average_purchase_price>
+
+    <inventory_warehouse_value>
+        <id>76DFF34</id>
+        <name>Warehouse stock value</name>
+        <width>50%</width>
+        <group>inventory</group>
+        <renderer>bar</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <model>SmartReport/Source_Inventory_WarehouseValue</model>
+    </inventory_warehouse_value>
+
+    <inventory_old_stock>
+        <id>8888733</id>
+        <name>Old stock</name>
+        <width>50%</width>
+        <group>inventory</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <stock_id>
+                    <hidden>1</hidden>
+                </stock_id>
+                <stock_name>
+                    <label>Warehouse</label>
+                </stock_name>
+                <product_id>
+                    <hidden>1</hidden>
+                </product_id>
+                <qty>
+                    <align>center</align>
+                </qty>
+                <last_movement>
+                    <align>center</align>
+                    <label>Last movement</label>
+                </last_movement>
+                <days>
+                    <align>center</align>
+                </days>
+                <sku>
+                    <renderer>link</renderer>
+                    <url>adminhtml/SmartReport_Reports/SkuDetail</url>
+                    <param_name>product_id</param_name>
+                    <param_value>product_id</param_value>
+                    <align>center</align>
+                </sku>
+            </columns>
+        </table>
+        <model>SmartReport/Source_Inventory_OldStock</model>
+    </inventory_old_stock>
+
+    <pending_orders>
+        <id>123456211</id>
+        <name>Pending orders</name>
+        <width>50%</width>
+        <group>orderpreparation</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <OrderId>
+                    <hidden>1</hidden>
+                </OrderId>
+                <OrderIncrementId>
+                    <renderer>link</renderer>
+                    <url>adminhtml/sales_order/view</url>
+                    <param_name>order_id</param_name>
+                    <param_value>OrderId</param_value>
+                    <align>left</align>
+                </OrderIncrementId>
+                <Status>
+                    <align>left</align>
+                </Status>
+                <Tab>
+                    <align>center</align>
+                </Tab>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                            opp.opp_order_id OrderId,
+                            increment_id OrderIncrementId,
+                            status Status,
+                            opp_type Tab
+                        from
+                           {prefix}order_to_prepare_pending opp
+                           inner join {prefix}sales_flat_order on (entity_id = opp.opp_order_id)
+                        where
+                            created_at >= "{date_from}"
+                            and created_at <= "{date_to}"
+                        order by
+                            opp.opp_order_id desc
+                        ]]></sql>
+    </pending_orders>
+
+    <packing_progress>
+        <id>123159211</id>
+        <name>Packing progress</name>
+        <width>50%</width>
+        <group>orderpreparation</group>
+        <renderer>table</renderer>
+        <available_for_dashboard>1</available_for_dashboard>
+        <table>
+            <columns>
+                <OrderId>
+                    <hidden>1</hidden>
+                </OrderId>
+                <OrderIncrementId>
+                    <renderer>link</renderer>
+                    <url>adminhtml/sales_order/view</url>
+                    <param_name>order_id</param_name>
+                    <param_value>OrderId</param_value>
+                    <align>left</align>
+                </OrderIncrementId>
+                <OrderStatus>
+                    <align>center</align>
+                </OrderStatus>
+                <Warehouse>
+                    <align>left</align>
+                </Warehouse>
+                <User>
+                    <align>center</align>
+                </User>
+                <Shipped>
+                    <align>center</align>
+                </Shipped>
+            </columns>
+        </table>
+        <sql><![CDATA[select
+                            otp.order_id OrderId,
+                            increment_id OrderIncrementId,
+                            status OrderStatus,
+                            cis.stock_name Warehouse,
+                            SUM(otpi.qty) TotalQty,
+                            au.username User,
+                            if (otp.shipment_id,'Shipped','Not Shipped') Shipped
+                        from
+                           {prefix}order_to_prepare otp
+                           inner join {prefix}order_to_prepare_item otpi on (otpi.order_id = otp.order_id)
+                           inner join {prefix}sales_flat_order sfo on (sfo.entity_id = otp.order_id)
+                           inner join {prefix}cataloginventory_stock cis on (otp.preparation_warehouse = cis.stock_id)
+                           inner join {prefix}admin_user au on (otp.user = au.user_id)
+                        where
+                            sfo.created_at >= "{date_from}"
+                            and sfo.created_at <= "{date_to}"
+                        group by
+                            otp.order_id, otp.preparation_warehouse
+                        order by
+                            otp.order_id desc
+                        ]]></sql>
+    </packing_progress>
+
+</reports>

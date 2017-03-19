@@ -1,0 +1,149 @@
+body {
+font-family:verdana, arial, helvetica, sans-serif;
+background-color:#D1E3CC;
+}
+
+a:hover {
+color:#666;
+text-decoration:underline;
+}
+
+.body-content h1 {
+font-family:verdana, arial, helvetica, sans-serif;
+font-size:12px;
+font-weight:700;
+color:#000;
+}
+
+h1 {
+color:#fff;
+}
+
+.formtbl .nobrds {
+border:none;
+}
+
+.sortable caption {
+color:#000;
+font-size:12px;
+}
+
+.sortable th {
+border-top:1px solid #ccc;
+border-bottom:1px solid #ccc;
+color:#fff;
+font-size:12px;
+font-variant:small-caps;
+background-color:#0045A4;
+background-position:top;
+}
+
+.sortable th a:active {
+color:#fff;
+font-weight:700;
+text-decoration:underline;
+font-size:12px;
+}
+
+.sortable a {
+color:#00566a;
+text-decoration:none;
+}
+
+.sortable a:hover {
+color:#fff;
+text-decoration:none;
+}
+
+.sortable td {
+border-bottom:1px solid #ccc;
+border-right:1px solid #ccc;
+}
+
+h6 {
+background-color:#fff;
+font:12px "Gill Sans", Verdana, sans-serif;
+color:#fff;
+font-weight:700;
+text-align:center;
+cursor:pointer;
+}
+
+h3 {
+background-color:#fff;
+font:12px "Gill Sans", Verdana, sans-serif;
+color:#fff;
+font-weight:700;
+text-align:center;
+cursor:default;
+}
+
+h6:hover {
+cursor:pointer;
+color:#033;
+}
+
+h6.sfhover {
+cursor:pointer;
+}
+
+.cellbox {
+border:1px solid #63961D;
+}
+
+#notices,#quota-warnings,#content-stats {
+border:1px solid #63961D;
+text-align:center;
+}
+
+#notices h6,#quota-warnings h6,#content-stats h6 {
+border-bottom:2px #666 solid;
+font:12px "Gill Sans", Verdana, sans-serif;
+color:#333;
+font-weight:700;
+text-align:center;
+}
+
+#stats td {
+border-bottom:1px #63961D solid;
+}
+
+#stats .row-odd {
+background-color:#EEF4EC;
+}
+
+#stats .row-even {
+background-color:#fff;
+}
+
+.warning {
+color:red;
+}
+
+.formtbl,.sortable {
+border:1px solid #ccc;
+font-family:Verdana, Arial, sans-serif;
+font-size:12px;
+}
+
+.formtbl .info-odd,.sortable .row-odd {
+background-color:#F3F3F3;
+border-bottom:1px solid #ccc;
+}
+
+.formtbl .info-even,.sortable.row-even {
+background-color:#fff;
+border-bottom:1px solid #ccc;
+}
+
+#cpanel #border-efx #heading-top-header-bg #heading-top-billboard #logo {
+top:29px;
+left:81px;
+}
+
+.sortable th a,.sortable th a:visited {
+color:#fff;
+font-size:12px;
+font-weight:700;
+text-decoration:none;
+}

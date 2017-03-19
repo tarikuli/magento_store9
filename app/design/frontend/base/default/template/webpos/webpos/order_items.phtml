@@ -1,0 +1,91 @@
+<?php $_order = $this->getOrder(); ?> 
+<div class="product">        
+    <!-- View Items-->
+    <div class="grid np">
+        <div class="hor-scroll table-responsive">
+            <table cellspacing="0" class="table data order-tables">
+                <col />
+                <col width="1" />
+                <col width="1" />
+                <col width="1" />
+                <col width="1" />
+                <col width="1" /> 
+                <col width="1" /> 
+                <thead>
+                    <tr class="theadings">
+                        <th><?php echo $this->helper('webpos')->__('Product') ?></th>
+                        <th><?php echo $this->helper('webpos')->__('SKU') ?></th>
+                        <th><?php echo $this->helper('webpos')->__('Price') ?></th>
+                        <th><?php echo $this->helper('webpos')->__('Tax') ?></th>
+                        <th><?php echo $this->helper('webpos')->__('Discount') ?></th>
+                        <th width="20%"><?php echo $this->helper('webpos')->__('Return to Stock') ?></th>
+                        <th class="a-center"><?php echo $this->helper('webpos')->__('Qty') ?></th>
+                        <th class="last text-right"><span class="nobr"><?php echo $this->helper('webpos')->__('Subtotal') ?></span></th>
+                    </tr>
+                </thead>
+                <?php $_items = $_order->getItemsCollection() ?>
+                <?php
+                $i = 0;
+                foreach ($_items as $_item):
+                if($_item->getQtyOrdered() > $_item->getQtyRefunded()):
+                ?>	
+                    <?php
+                    $baseSubTotal = Mage::app()->getStore()->formatPrice($_item->getData('qty_ordered') / 1 * $_item->getData('price') / 1);
+                    $original_price = Mage::app()->getStore()->formatPrice($_item->getData('original_price'));
+                    $price = Mage::helper('core')->currency($_item->getData('base_price'));
+                    $discount_amount = $_item->getData('discount_amount');
+                    $base_discount_amount = $_item->getData('base_discount_amount');
+                    $row_total = $_item->getData('row_total');
+                    $base_row_total = $_item->getData('base_row_total');
+                    $tax_percent = $_item->getData('tax_percent') . '%';
+                    $tax_amount = $_item->getData('tax_amount');
+                    $base_tax_amount = $_item->getData('base_tax_amount');
+                    $baseItemPrice = $_item->getBasePriceInclTax() - $_item->getBaseDiscountAmount();
+                    $orderCurrencyCode = $_order->getOrderCurrencyCode();
+                    $baseOrderCurrencyCode = $_order->getBaseCurrencyCode();
+                    $currentCurrencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
+                    if($baseOrderCurrencyCode == $currentCurrencyCode){
+                        $row_total = $base_row_total;
+                        $tax_amount = $base_tax_amount;
+                        $discount_amount = $base_discount_amount;
+                    }elseif($orderCurrencyCode == $currentCurrencyCode){
+                        $row_total = $row_total;
+                        $tax_amount = $tax_amount;
+                        $discount_amount = $discount_amount;
+                    }else{
+                        $row_total = Mage::helper('directory')->currencyConvert($row_total, $orderCurrencyCode, $currentCurrencyCode);
+                        $tax_amount = Mage::helper('directory')->currencyConvert($tax_amount, $orderCurrencyCode, $currentCurrencyCode);
+                        $discount_amount = Mage::helper('directory')->currencyConvert($discount_amount, $orderCurrencyCode, $currentCurrencyCode);
+                    }
+                    $discount_amount = $discount_amount * ($_item->getQtyOrdered() - $_item->getQtyRefunded())/$_item->getQtyOrdered();
+                    $tax_amount = $tax_amount * ($_item->getQtyOrdered() - $_item->getQtyRefunded())/$_item->getQtyOrdered();
+                    $row_total = $row_total * ($_item->getQtyOrdered() - $_item->getQtyRefunded())/$_item->getQtyOrdered();
+                    $discount_amount = Mage::helper('core')->formatPrice($discount_amount);
+                    $tax_amount = Mage::helper('core')->formatPrice($tax_amount);
+                    $row_total = Mage::helper('core')->formatPrice($row_total);
+					?>
+                    <?php
+                    if ($_item->getParentItem())
+                        continue;
+                    else
+                        $i++;
+                    ?>
+                    <tbody class="<?php echo $i % 2 ? 'even' : 'odd' ?>">
+                        <tr class="<?php echo ($i % 2) ? 'fist even' : ' last odd' ?>">
+                            <td><?php echo $_item->getData('name') ?></td>
+                            <td><?php echo $_item->getData('sku') ?></td>
+                            <td><?php echo $price ?></td>
+                            <td><?php echo $tax_amount ?></td>
+                            <td><?php echo $discount_amount ?></td>
+                            <td><input class="return_to_stock" name="return_to_stock" type="checkbox" id="return_to_stock_<?php echo $_item->getId(); ?>"/></td>
+                            <td width="30px"><input type="text" class="qty_refund form-control" id="qty_refund_<?php echo $_item->getId(); ?>" value="<?php echo number_format($_item->getQtyOrdered() - $_item->getQtyRefunded(),0) ?>"/></td>					                                
+                            <td class="text-right"><?php echo $row_total ?></td>
+                        </tr>						
+                    </tbody>
+                <?php endif; endforeach; ?>
+            </table>
+        </div>
+    </div>
+</div> 
+<input id="order_id_wp" type="hidden" value = ""/>
+<input id="invoice_id_wp" type="hidden" value = ""/>

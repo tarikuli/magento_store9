@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<!-- 
+/**
+ * @category   SSTech
+ * @package    SSTech_Ordertracking
+ * @author     ModuleCreator
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+ -->
+<config>
+    <modules>
+        <SSTech_Ordertracking>
+            <version>0.1.1</version>
+        </SSTech_Ordertracking>
+    </modules>
+    <frontend>
+        <routers>
+            <ordertracking>
+                <use>standard</use>
+                <args>
+                    <module>SSTech_Ordertracking</module>
+                    <frontName>ordertracking</frontName>
+                </args>
+            </ordertracking>
+        </routers>
+        <layout>
+            <updates>
+                <ordertracking>
+                    <file>ordertracking.xml</file>
+                </ordertracking>
+            </updates>
+        </layout>
+    </frontend>
+    <admin>
+        <routers>
+			<ordertracking>
+				<use>admin</use>
+				<args>
+					<module>SSTech_Ordertracking</module>
+					<frontName>ordertracking</frontName>
+				</args>
+			</ordertracking>
+        </routers>
+    </admin>
+    <adminhtml>
+		<acl>
+			<resources>
+				<all>
+					<title>Allow Everything</title>
+				</all>
+				<admin>
+					<children>
+						<SSTech_Ordertracking>
+							<title>Ordertracking Module</title>
+							<sort_order>10</sort_order>
+						</SSTech_Ordertracking>
+                         <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <ordertracking>
+                                            <title>Order Tracking</title>
+                                        </ordertracking>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+					</children>
+				</admin>
+			</resources>
+		</acl>
+		<layout>
+			<updates>
+				<ordertracking>
+					<file>ordertracking.xml</file>
+				</ordertracking>
+			</updates>
+		</layout>
+    </adminhtml>   
+    <global>
+        <models>
+            <ordertracking>
+                <class>SSTech_Ordertracking_Model</class>
+                <resourceModel>ordertracking_mysql4</resourceModel>
+            </ordertracking>
+            <ordertracking_mysql4>
+                <class>SSTech_Ordertracking_Model_Mysql4</class>
+                <entities>
+                    <ordertracking>
+                        <table>ordertracking</table>
+                    </ordertracking>
+                </entities>
+            </ordertracking_mysql4>
+        </models>
+        <resources>
+            <ordertracking_setup>
+                <setup>
+                    <module>SSTech_Ordertracking</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </ordertracking_setup>
+            <ordertracking_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </ordertracking_write>
+            <ordertracking_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </ordertracking_read>
+        </resources>
+        <blocks>
+            <ordertracking>
+                <class>SSTech_Ordertracking_Block</class>
+            </ordertracking>
+        </blocks>
+        <helpers>
+            <ordertracking>
+                <class>SSTech_Ordertracking_Helper</class>
+            </ordertracking>
+        </helpers>
+    </global>
+</config>

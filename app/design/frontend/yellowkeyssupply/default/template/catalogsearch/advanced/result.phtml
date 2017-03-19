@@ -1,0 +1,73 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php $searchCriterias = $this->getSearchCriterias(); ?>
+<?php if($searchCriterias): ?>
+ <?php $total = count($searchCriterias['left']) + count($searchCriterias['right']); $count = 1; $title =""; $search=""; ?>
+ <div class="ui breadcrumb">
+    <a href="<?php echo Mage::getBaseUrl() ?>" class="section">Home</a> 
+<?php foreach (array('left', 'right') as $side): ?>
+    <?php if(@$searchCriterias[$side]): ?>  
+            <?php foreach($searchCriterias[$side] as $key => $criteria): 
+                $title .= ' '.$criteria['name'];  
+            ?>  
+                <i class="right angle icon divider"></i>
+                <?php if($total == $count ): ?>
+                    <?php if($total == 1 ): ?>
+                        <div class="active section"><?php echo $this->escapeHtml($criteria['name']); ?></div> 
+                    <?php else: ?>
+                        <div class="active section"><?php echo $this->escapeHtml($criteria['name']); ?></div>
+                    <?php endif; ?>
+                    
+                <?php else: ?>
+                    <?php  $search .= strtolower($criteria['name']).'='. urlencode($criteria['value']) .'&'; ?>
+                    <a href="<?php echo Mage::getBaseUrl() . 'catalogsearch/advanced/result?'.$search; ?>" class="section"><?php echo $this->escapeHtml($criteria['value']); ?></a>
+                <?php endif; ?>
+            <?php  $count++; endforeach; ?>
+    <?php endif; ?>
+<?php endforeach; ?> 
+</div>
+<?php endif; ?>
+
+
+<div class="page-title">
+     <h1 class="section-title"><?php $title = strlen($title)>0?$title:"Catalog Advanced Search"; echo $this->__($title) ?></h1>
+</div>
+
+<?php echo $this->getMessagesBlock()->toHtml() ?>
+<?php if($this->getResultCount()): ?>
+    <p class="advanced-search-amount"> 
+    </p>
+<?php else: ?>
+    <p class="error-msg"><?php echo $this->helper('catalogsearch')->__('No items were found using the following search criteria.');?> <a href="<?php echo $this->getFormUrl(); ?>"><?php echo $this->helper('catalogsearch')->__('Modify your search'); ?></a></p>
+<?php endif; ?>
+
+<div class="advanced-search-summary">
+     
+</div>
+<?php if($this->getResultCount()): ?>
+    <?php echo $this->getProductListHtml() ?>
+<?php endif; ?> 

@@ -1,0 +1,35 @@
+[10-Mar-2017 14:29:41 UTC] PHP Fatal error:  Call to a member function getGroupId() on a non-object in /home/yellowkeysupply/public_html/app/code/local/EH/CustomerApprove/Model/Customer.php on line 53
+[14-Mar-2017 07:50:01 UTC] PHP Fatal error:  Out of memory (allocated 4980736) (tried to allocate 12288 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Core/Model/Resource/Helper/Abstract.php on line 227
+[14-Mar-2017 07:51:01 UTC] PHP Fatal error:  Out of memory (allocated 6291456) (tried to allocate 3072 bytes) in /home/yellowkeysupply/public_html/app/code/community/Aoe/Scheduler/Model/Job.php on line 98
+[14-Mar-2017 18:19:24 UTC] PHP Fatal error:  Out of memory (allocated 10485760) (tried to allocate 3072 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Catalog/Model/Category.php on line 796
+[14-Mar-2017 18:20:24 UTC] PHP Fatal error:  Out of memory (allocated 36962304) (tried to allocate 11832 bytes) in /home/yellowkeysupply/public_html/lib/Zend/Db/Statement/Pdo.php on line 228
+[14-Mar-2017 18:29:24 UTC] PHP Fatal error:  Out of memory (allocated 6815744) (tried to allocate 49152 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Wishlist/Controller/Abstract.php on line 171
+[14-Mar-2017 19:25:25 UTC] PHP Fatal error:  Out of memory (allocated 40894464) (tried to allocate 248 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Payment/Model/Billing/AgreementAbstract.php on line 119
+[14-Mar-2017 19:43:20 UTC] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 130968 bytes) in /home/yellowkeysupply/public_html/lib/Zend/Locale.php on line 297
+[14-Mar-2017 19:53:27 UTC] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 130968 bytes) in /home/yellowkeysupply/public_html/lib/Zend/Locale.php on line 297
+[14-Mar-2017 20:49:24 UTC] PHP Fatal error:  Out of memory (allocated 25427968) (tried to allocate 12288 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Checkout/Model/Cart.php on line 586
+[14-Mar-2017 20:50:25 UTC] PHP Fatal error:  Out of memory (allocated 262144) (tried to allocate 12288 bytes) in /home/yellowkeysupply/public_html/index.php on line 78
+[14-Mar-2017 20:50:25 UTC] PHP Fatal error:  Out of memory (allocated 21233664) (tried to allocate 3072 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Catalog/Block/Product/List/Toolbar.php on line 437
+[14-Mar-2017 20:58:24 UTC] PHP Fatal error:  Out of memory (allocated 32505856) (tried to allocate 248 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Review/Block/Helper.php on line 90
+[14-Mar-2017 21:01:25 UTC] PHP Fatal error:  Out of memory (allocated 3932160) (tried to allocate 49152 bytes) in /home/yellowkeysupply/public_html/lib/Varien/Db/Ddl/Table.php on line 397
+[14-Mar-2017 21:02:26 UTC] PHP Fatal error:  Out of memory (allocated 26214400) (tried to allocate 3840 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Paypal/Model/Config.php on line 891
+[14-Mar-2017 21:09:26 UTC] PHP Fatal error:  Out of memory (allocated 35127296) (tried to allocate 3072 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/ConfigurableSwatches/Model/Observer.php on line 151
+[14-Mar-2017 21:13:24 UTC] PHP Fatal error:  Out of memory (allocated 30146560) (tried to allocate 12160 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/CatalogInventory/Model/Observer.php on line 441
+[14-Mar-2017 21:13:24 UTC] PHP Fatal error:  Out of memory (allocated 7602176) (tried to allocate 3200 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Core/Model/Resource/Design.php on line 76
+[14-Mar-2017 21:15:24 UTC] PHP Fatal error:  Out of memory (allocated 33292288) (tried to allocate 523 bytes) in /home/yellowkeysupply/public_html/app/code/core/Zend/Db/Select.php on line 1139
+[14-Mar-2017 21:16:25 UTC] PHP Fatal error:  Out of memory (allocated 34340864) (tried to allocate 168625 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Core/Model/Url.php on line 1148
+[14-Mar-2017 21:23:25 UTC] PHP Fatal error:  Out of memory (allocated 22544384) (tried to allocate 3072 bytes) in /home/yellowkeysupply/public_html/lib/Varien/Data/Tree/Node/Collection.php on line 45
+[14-Mar-2017 21:26:24 UTC] PHP Fatal error:  Out of memory (allocated 25427968) (tried to allocate 3072 bytes) in /home/yellowkeysupply/public_html/lib/Varien/Autoload.php on line 94
+[14-Mar-2017 21:48:24 UTC] PHP Fatal error:  Out of memory (allocated 32768000) (tried to allocate 3072 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Catalog/Model/Product/Url.php on line 123
+[14-Mar-2017 21:51:24 UTC] PHP Fatal error:  Out of memory (allocated 28573696) (tried to allocate 248 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Catalog/Block/Product/View/Additional.php on line 61
+[15-Mar-2017 00:17:25 UTC] PHP Fatal error:  Out of memory (allocated 13369344) (tried to allocate 786432 bytes) in /home/yellowkeysupply/public_html/app/code/core/Zend/Date.php on line 2447
+[15-Mar-2017 00:26:24 UTC] PHP Fatal error:  Out of memory (allocated 30146560) (tried to allocate 3072 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Eav/Model/Entity/Attribute/Option.php on line 46
+[15-Mar-2017 00:27:24 UTC] PHP Fatal error:  Out of memory (allocated 27262976) (tried to allocate 12288 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/CatalogInventory/Model/Stock.php on line 147
+[15-Mar-2017 01:26:29 UTC] PHP Fatal error:  Out of memory (allocated 25427968) (tried to allocate 12288 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Catalog/Block/Product/List/Toolbar.php on line 185
+[15-Mar-2017 02:25:35 UTC] PHP Fatal error:  Out of memory (allocated 21757952) (tried to allocate 248 bytes) in /home/yellowkeysupply/public_html/app/code/core/Mage/Reports/Model/Resource/Product/Index/Collection/Abstract.php on line 37
+[15-Mar-2017 02:43:36 UTC] PHP Fatal error:  Out of memory (allocated 19136512) (tried to allocate 49152 bytes) in /home/yellowkeysupply/public_html/app/code/local/Magestore/Webpos/Helper/Data.php on line 652
+[15-Mar-2017 04:53:37 UTC] PHP Fatal error:  Out of memory (allocated 35651584) (tried to allocate 65552 bytes) in /home/yellowkeysupply/public_html/lib/Zend/Locale/Data.php on line 1615
+[15-Mar-2017 07:57:40 UTC] PHP Fatal error:  Out of memory (allocated 9961472) (tried to allocate 32 bytes) in /home/yellowkeysupply/public_html/lib/Zend/Db/Statement/Pdo.php on line 228
+[15-Mar-2017 11:29:45 UTC] PHP Fatal error:  Out of memory (allocated 11796480) (tried to allocate 196608 bytes) in /home/yellowkeysupply/public_html/app/code/core/Zend/Date.php on line 1611
+[15-Mar-2017 11:35:45 UTC] PHP Fatal error:  Out of memory (allocated 11272192) (tried to allocate 88 bytes) in /home/yellowkeysupply/public_html/lib/Zend/Db/Statement/Pdo.php on line 291
+[15-Mar-2017 11:37:45 UTC] PHP Fatal error:  Out of memory (allocated 13107200) (tried to allocate 4480 bytes) in /home/yellowkeysupply/public_html/lib/Zend/Locale/Format.php on line 144

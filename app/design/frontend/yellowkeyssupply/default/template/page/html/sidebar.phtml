@@ -1,0 +1,110 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     rwd_default
+ * @copyright   Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Product list toolbar
+ *
+ * @see Mage_Catalog_Block_Page_Html_Topmenu
+ */
+
+ $url = Mage::getBaseUrl() . 'catalogsearch/advanced/result?';
+ $store = Mage::app()->getStore();
+?>
+
+<div class="ui vertical inverted sidebar menu left uncover" id="sidebar-menu">
+ <div class="item"> 
+
+    <a class="app-name" href="<?php echo Mage::getBaseUrl()?>"> 
+        <b>
+          <?php if(!Mage::getSingleton('customer/session')->isLoggedIn()): ?>
+             <?php echo $store->getFrontendName();?>
+          <?php else: ?>
+              <?php $customer = Mage::getSingleton('customer/session')->getCustomer(); ?> 
+              <?php echo $customer->getName();?>
+          <?php endif;?>
+        </b>
+    </a>
+  </div> 
+
+
+<div class="item">
+  <div class="active  header">My Account</div>
+  <div class="menu">
+    
+      <a class="item" href="<?php echo Mage::getBaseUrl()."customer/account"?>" title="Customer Account">
+        Account 
+      </a>
+
+      <a class="item" href="<?php echo Mage::getBaseUrl()."wishlist"?>">
+        My Wishlist 
+      </a>
+    
+      <a class="item" href="<?php echo Mage::getBaseUrl()."checkout/cart"?>">
+        My Cart 
+      </a>
+    
+      <a class="item" href="<?php echo Mage::getBaseUrl()."checkout" ?>">
+        Checkout 
+      </a>  
+
+     <?php if(!Mage::getSingleton('customer/session')->isLoggedIn()): ?>
+          <a class="item" href="<?php echo Mage::getBaseUrl()."customer/account/create"?>">Register</a>
+          <a class="item" href="<?php echo Mage::getBaseUrl()."customer/account/login"?>">Login</a>
+      <?php else: ?>
+        <a class="item" href="<?php echo Mage::getBaseUrl()."customer/account"?>">Account Dashboard</a>
+        <a class="item" href="<?php echo Mage::getBaseUrl()."customer/account/edit"?>">Account Information</a>
+        <a class="item" href="<?php echo Mage::getBaseUrl()."customer/address"?>">Address Book</a>
+        <a class="item" href="<?php echo Mage::getBaseUrl()."sales/order/history"?>">My Orders</a>
+        <a class="item" href="<?php echo Mage::getBaseUrl()."sales/billing_agreement"?>">Billing Agreements</a>
+        <a class="item" href="<?php echo Mage::getBaseUrl()."customer/account/logout"?>">Logout</a>
+        <a class="item" href="<?php echo Mage::getBaseUrl()."customer/account/logout"?>">Logout</a>
+      <?php endif;?>
+
+  </div>
+</div>
+<div class="ui accordion">
+  <?php $count = 0; foreach( $this->getAllCategories() as $key => $cat): ?>
+  <div class="item"> 
+    <a class="header <?php echo ($count==0 ?'active':'') ?> title" href="#"><?php echo $cat['category']['name']; ?> <i class="dropdown icon"></i></a>
+    <div class="menu content <?php echo ($count==0 ?'active':'') ?> "> 
+        <?php foreach($cat['items'] as $key => $item): ?>
+            <a class="item" href="<?php echo $item['url'] ?>" title="<?php echo $item['name']?>"><?php echo $item['name']?></a>
+        <?php endforeach; ?>  
+    </div>
+  </div>
+  <?php $count++; endforeach; ?>
+
+</div>
+
+<div class="item">
+  <div class=" header"><?php echo Mage::getModel('cms/block')->load("sidebar_menu")->getTitle(); ?></div>
+  <div class="menu"> 
+       <?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('sidebar_menu')->toHtml();?>
+  </div>
+</div> 
+
+</div>

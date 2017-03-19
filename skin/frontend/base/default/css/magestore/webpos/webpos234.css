@@ -1,0 +1,12 @@
+.payment-remain-info{
+    float:right;
+}
+
+#category_dropdown .action-filter .menu-all-cats span,
+.discount-webpos .choose-discount button#custome-discount{
+    font-size: initial;
+}
+
+#webpos_medium_overlay{
+    left:100px;
+}

@@ -1,0 +1,90 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     rwd_default
+ * @copyright   Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Top menu for store
+ *
+ * @see Mage_Page_Block_Html_Topmenu
+ */  
+?>  
+
+<?php
+    $make_var = Mage::getModel('core/variable')->setStoreId(Mage::app()->getStore()->getId())->loadByCode('make_urlkey_code')->getValue('text');
+    $categories = $this->getAllCategories();
+?>
+
+<script type="text/javascript">
+  var YELLOWKEY_URL = "<?php echo Mage::getBaseUrl() ?>";  
+</script>
+<nav id="nav">
+	<ol class="nav-primary col-lg-1  col-md-1 hidden-sm hidden-xs">
+		<li class="logo-main"> <a href="<?php echo Mage::getBaseUrl()?>"><img src="<?php echo $this->getSkinUrl('images/logo-white.png'); ?>"/></a></li>
+	</ol>
+    <ol class="category-menu nav-primary hidden-sm hidden-xs col-lg-6 col-md-8"> 
+        <?php foreach( $categories as $key => $cat): ?>
+            <li class="search search-link">
+            	<a  class="dropdown-link" title="<?php echo $cat['category']['title']; ?>" href="<?php echo $cat['category']['url']; ?>" role="button" aria-haspopup="true" aria-expanded="true"><?php echo $cat['category']['name']; ?></a> 
+            	<?php echo $this->getCategoryMenuHtml($cat['category'], $cat['items']); ?> 
+                <?php if($make_var === $cat['category']['urlkey']){ 
+                    $GLOBALS['make-category'] = $cat;
+                }?> 
+            </li>
+        <?php endforeach; ?>  
+        <?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('top_menu_item')->toHtml();?>
+    </ol>
+    <ol class="nav-primary search-bar col-lg-5 col-md-3 col-sm-12">
+        <li class="search fcc-brand col-lg-5 col-md-12 col-sm-5 col-xs-5">
+        	<div class="fcc-brand-dropdown">
+        		<button class="toggle-menu"><i class="fa fa-search" aria-hidden="true"></i> <span>Search By Vehicle</span><i class="dropdown icon"></i></button>
+        		<form class="menu" action="<?php echo Mage::getBaseUrl().'catalogsearch/advanced/result/'?>" method="get">
+        			<select name="make" class="vehicle-make">
+        				<option value="-1">Select Vehicle Make</option>
+			    		<?php foreach($GLOBALS['make-category']['items'] as $key => $item): ?>
+			    			<option value="<?php echo $item['id']?>" data-href="<?php echo $item['url']?>"><?php echo $item['name']?></option>
+			    		<?php endforeach; ?>
+        			</select> 
+        			<select name="model" class="vehicle-model">
+        				<option value="-1">Select Vehicle Model </option>
+        			</select>
+
+        			<select  name="model_year" class="vehicle-year">
+        				<option value="-1">Select Vehicle Year </option>
+        			</select>
+        			<div class="ui centered inline loader search-loader"></div>
+        			<div class="ui buttons"> 
+					  <button type="submit" class="ui search button" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Search')) ?>">Search</button>
+					</div>
+        		</form>
+        	 </div>
+        	
+        </li>
+        <li class="search vehicle col-lg-7 hidden-md col-sm-7 col-xs-7"> 
+            <?php echo $this->getLayout()->getBlock('top.search')->toHtml() ?>  
+        </li>
+    </ol>
+</nav>   
+

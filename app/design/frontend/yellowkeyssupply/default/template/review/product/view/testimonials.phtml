@@ -1,0 +1,82 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     rwd_default
+ * @copyright   Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+
+<?php  
+	$background  = $this->getBackgroundImage($this->getSkinUrl('images/testimonial_bg.png'));
+	$_reviews = $this->getReviews();
+	
+?>
+
+<section class="testimonials" style="background-image:url(<?php echo $background['image_url'] ?>); ">
+	<div class="container">	
+		<?php if($_reviews): ?>
+				<h2>Testimonials</h2>
+				<div id="owl-testimonials" class="owl-carousel"> 
+					<?php foreach($_reviews as $review): ?> 
+					  <div class="item"> 
+					  		<div class="ratingbox">
+					    		<div class="ui large star rating" data-rating="<?php echo ($this->getAverageRating($review)/100 *5) ?>" data-max-rating="5"></div>
+					    	</div>
+					  		<p><?php echo $review->getDetail()?></p>
+					  		<div><strong> - <?php echo $review->getNickname()?></strong></div>
+					  </div> 
+					<?php endforeach; ?>
+				</div>
+		<?php endif; ?>
+	</div>	
+</section>
+
+<script type="text/javascript">
+//<![CDATA[
+//jQuery(function($) {
+testimonials = jQuery.noConflict(); 
+testimonials(window).load(function(){ 
+    testimonials('#owl-testimonials').owlCarousel({
+        navText: ['<i class="angle left icon"></i>', '<i class="angle right icon"></i>'],
+        loop: true,
+        margin: 0,
+        nav: true,
+        //navContainer: 'owl-carousel',
+        autoplay: true,
+        autoplayTimeout: 4000,
+        autoplayHoverPause: true,
+        animateIn: 'fadeIn',
+        dots:false,
+        responsive: {
+           0: {
+                items: 1
+            },
+            480: {
+                items: 1
+            }, 
+        }
+    }); 
+
+    testimonials('.ui.rating').rating('disable')
+});
+//]]>
+</script>
