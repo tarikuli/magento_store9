@@ -93,7 +93,8 @@ class Amasty_Label_Helper_Data extends Mage_Core_Helper_Abstract
             $backgroundImg = '; background: url(' . $imgUrl . ') no-repeat 0 0; ';
         }
         $textBlockStyle = 'style="width:' . $imgWidth . $backgroundImg . $customStyle . '"';
-        $html  = '<div class="amlabel-table2 top-left" ' . $label->getJs() . ' >';
+        //$html  = '<div class="amlabel-table2 top-left" ' . $label->getJs() . ' >';
+        $html  = '<div class="top-left">';
         $html .= '  <div class="amlabel-txt2 ' . $positionClass . '" ' . $textBlockStyle . ' ><div class="amlabel-txt" ' . $textStyle . '>' . $label->getText() . '</div></div>';
         $html .= '</div>';
 
