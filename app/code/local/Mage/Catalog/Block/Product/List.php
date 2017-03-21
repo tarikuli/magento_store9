@@ -270,18 +270,26 @@ class Mage_Catalog_Block_Product_List extends Mage_Catalog_Block_Product_Abstrac
     public function displayFCCModel($product){
         $fcc = $product->getData('fcc_id');
         $attribute_option_id = Mage::getResourceModel('catalog/product')
-        ->getAttributeRawValue($product->getId(), 'display_fcc_model',
-            Mage::app()->getStore()->getStoreId());
-
+							        ->getAttributeRawValue($product->getId(), 'display_fcc_model',
+							            Mage::app()->getStore()->getStoreId());
+            
         $_product = Mage::getModel('catalog/product')
-        ->setStoreId(Mage::app()->getStore()->getStoreId())
-        ->setData('display_fcc_model', $attribute_option_id);
+				        ->setStoreId(Mage::app()->getStore()->getStoreId())
+				        ->setData('display_fcc_model', $attribute_option_id);
         $fccModel =   $_product->getAttributeText('display_fcc_model');
 
-        if($fccModel == "FCC" && !empty($fcc))
+        if($fccModel == "FCC" && !empty($fcc)){
             return "FCC: " . $fcc;
-        else
-            return  "Model: " . $product->getData("model");
+        } else {
+        	
+        	if(empty($product->getData("model"))){
+        		return null;
+        	}else{
+        		return  "Model: " . $product->getData("model");
+        	}
+        	
+            # return  "Model: " . $product->getData("model");
+        }
     }
 
     public function productLabel($id){
@@ -304,7 +312,7 @@ class Mage_Catalog_Block_Product_List extends Mage_Catalog_Block_Product_Abstrac
 
     public function getSKUPriceSummaryHtml($_product,$_productNameStripped, $is_list){
        $html=  '<a href="'.$_product->getProductUrl().'" title="'. $_productNameStripped .'">';
-        if(!$is_list){
+       if(isset($is_list)){
             $html .='<div class="product-title"><strong>'.$_productNameStripped.'</strong></div>';
         }
         $html .='<div class="product-description">
