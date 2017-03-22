@@ -2499,11 +2499,19 @@ p.search-label{
 	.product-view  .ui.table{
 		border-spacing: 0px; 
 	}
-
+     
 	/*.owl-product.owl-carousel .owl-item img{
 		max-height: 240px;
 		height: 240px;
 	}*/
+	
+	.fcc-brand-dropdown .toggle-menu {
+		min-width: 210px !important;
+	}
+	
+	.product_image .add-to-cart{
+	    top:73%;
+	}
 }
  
 @media only screen and (max-width: 479px){
@@ -2537,11 +2545,15 @@ p.search-label{
 	.fcc-brand-dropdown button span {
 		display: inline;
 		overflow: hidden;
-		width: 155px;
+		width: 155px !important;
 		padding: 0
 	}
 	.fcc-brand-dropdown .toggle-menu {
-		min-width: 120px;
+		min-width: 120px !important;
+	}
+	
+	.product_image .add-to-cart{
+	    top:73%;
 	}
 }
 
@@ -2556,7 +2568,7 @@ p.search-label{
 	}
 	
 	.product_image .add-to-cart{
-		top: 30%;
+	    top:73%;
 	}
 
 	.product_image .wishlist.button{
@@ -2571,13 +2583,12 @@ p.search-label{
 	.fcc-brand-dropdown button span {
 		display: inline;
 		overflow: hidden;
-		width: 155px;
+		width: 155px !important;
 		padding: 0
 	}
 	.fcc-brand-dropdown .toggle-menu {
-		min-width: 120px;
+		min-width: 120px !important;
 	}
-
 }
 
 
@@ -2587,7 +2598,7 @@ p.search-label{
 	    margin: 0px 0px;
 	}
 	.search.vehicle {
-		display:none;
+		display:none !important;
 	}	
 	.product_image .add-to-cart button,
 	.product_image .add-to-cart a{
@@ -2609,7 +2620,7 @@ p.search-label{
 	} 
 	
 	.owl-product .product_image .add-to-cart{
-		top: 20%;
+		top: 73%;
 	}
 
 	.product-price .ratings{
@@ -2618,16 +2629,16 @@ p.search-label{
 
 	.fcc-brand-dropdown .toggle-menu,
 	.fcc-brand-dropdown:hover form.menu{
-		margin-left:30%; 
+		margin-left:30%; 		
 	} 
 	.home-banner .flex-caption .container-fluid{
 		left: 2.5%;
 	}
 
-	.fcc-brand-dropdown button span {
+	.fcc-brand-dropdown button {
 		display: inline;
 		overflow: hidden;
-		width: 155px;
+		width: 220px;
 		padding: 0;
 	}
 	.fcc-brand-dropdown .toggle-menu {
