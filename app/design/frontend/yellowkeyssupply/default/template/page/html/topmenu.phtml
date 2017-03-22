@@ -56,8 +56,8 @@
         <?php endforeach; ?>  
         <?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('top_menu_item')->toHtml();?>
     </ol>
-    <ol class="nav-primary search-bar col-lg-5 col-md-3 col-sm-12">
-        <li class="search fcc-brand col-lg-5 col-md-12 col-sm-5 col-xs-5">
+    <ol class="nav-primary search-bar col-lg-5 col-md-3 col-sm-12 ">
+        <li class="search fcc-brand col-lg-5 col-md-12 col-sm-5 col-xs-5 h hidden-md">
         	<div class="fcc-brand-dropdown">
         		<button class="toggle-menu"><i class="fa fa-search" aria-hidden="true"></i>
 					<span>Search</span>
@@ -84,7 +84,7 @@
         	 </div>
         	
         </li>
-        <li class="search vehicle col-lg-7 hidden-md col-sm-7 col-xs-7"> 
+        <li class="search vehicle col-lg-7 col-sm-7 col-xs-7">
             <?php echo $this->getLayout()->getBlock('top.search')->toHtml() ?>  
         </li>
     </ol>
