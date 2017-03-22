@@ -312,7 +312,7 @@ class Mage_Catalog_Block_Product_List extends Mage_Catalog_Block_Product_Abstrac
 
     public function getSKUPriceSummaryHtml($_product,$_productNameStripped, $is_list){
        $html=  '<a href="'.$_product->getProductUrl().'" title="'. $_productNameStripped .'">';
-       if(isset($is_list)){
+       if(!$is_list){
             $html .='<div class="product-title"><strong>'.$_productNameStripped.'</strong></div>';
         }
         $html .='<div class="product-description">
