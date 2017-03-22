@@ -2552,12 +2552,9 @@ p.search-label{
 		font-size: 11px;
 	}
 	.search.vehicle {
-		max-width: 100%;
-		width: 100%;
+	    display:none;
 	}
-	.search.fcc-brand {
-		display: none !important;
-	}
+	
 	.product_image .add-to-cart{
 		top: 30%;
 	}
@@ -2590,12 +2587,8 @@ p.search-label{
 	    margin: 0px 0px;
 	}
 	.search.vehicle {
-		max-width: 100%;
-		width: 100%;
-	}
-	.search.fcc-brand {
-		display: none !important;
-	}
+		display:none;
+	}	
 	.product_image .add-to-cart button,
 	.product_image .add-to-cart a{
 		font-size: 11px;
@@ -2623,10 +2616,10 @@ p.search-label{
 		display: none;
 	}
 
-	/*.fcc-brand-dropdown .toggle-menu,
-	.fcc-brand-dropdown:hover form.menu{*/
-		/*margin-left:30%; */
-	/*} */
+	.fcc-brand-dropdown .toggle-menu,
+	.fcc-brand-dropdown:hover form.menu{
+		margin-left:30%; 
+	} 
 	.home-banner .flex-caption .container-fluid{
 		left: 2.5%;
 	}
