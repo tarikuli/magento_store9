@@ -914,6 +914,9 @@ section.testimonials h2{
 .owl-carousel .owl-dot.active {
     background-color: #ea9822;
 }
+.button, .cart-table .product-cart-actions .button, #co-shipping-method-form .buttons-set .button, .footer .button {
+	padding: 7px 12px;
+}
 
  .owl-product.owl-carousel .owl-item img{
 	width: 100%;
@@ -2504,6 +2507,10 @@ p.search-label{
 }
  
 @media only screen and (max-width: 479px){
+	.product_image .add-to-cart button,
+	.product_image .add-to-cart a{
+		font-size: 11px;
+	}
 	.buttons-set .button{
 		width: initial;
 	}
@@ -2540,6 +2547,17 @@ p.search-label{
 
 
 @media only screen and (max-width: 360px){
+	.product_image .add-to-cart button,
+	.product_image .add-to-cart a{
+		font-size: 11px;
+	}
+	.search.vehicle {
+		max-width: 100%;
+		width: 100%;
+	}
+	.search.fcc-brand {
+		display: none !important;
+	}
 	.product_image .add-to-cart{
 		top: 30%;
 	}
@@ -2566,13 +2584,27 @@ p.search-label{
 }
 
 
-@media only screen and (max-width: 340px){
+@media only screen and (max-width: 340px) {
 	.footer .delivery-payment .owl-carousel .item{  
 	    padding: 20px 10px; 
 	    margin: 0px 0px;
 	}
+	.search.vehicle {
+		max-width: 100%;
+		width: 100%;
+	}
+	.search.fcc-brand {
+		display: none !important;
+	}
+	.product_image .add-to-cart button,
+	.product_image .add-to-cart a{
+		font-size: 11px;
+	}
 	.footer .delivery-payment .owl-carousel .owl-item img{
 		width: 40px;
+	}
+	.product_image .wishlist.button{
+		margin-top: 0px;
 	}
 
 	#header-cart{
