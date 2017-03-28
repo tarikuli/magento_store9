@@ -33,8 +33,10 @@
     <h5 class="title"><span id="order_item_<?php echo $_item->getId() ?>_title"><?php echo $this->escapeHtml($_item->getName()) ?></span></h5> 
     <div><strong><?php echo $this->helper('sales')->__('SKU') ?>:</strong> <?php echo implode('<br />', Mage::helper('catalog')->splitSku($this->escapeHtml($this->getSku()))); ?></div>
     <?php foreach($this->getAdditionalAttributes($_item->getProduct()) as $label => $value): ?> 
-        <div><strong><?php echo $value[0]; ?>:</strong>
-        <?php echo $value[1]; ?></div>
+    	<?php if(!empty($value[1])): ?>
+        	<div><strong>**<?php echo $value[0]; ?>:</strong>         <?php echo $value[1]; ?></div>
+        <?php endif; ?>
+        
     <?php endforeach; ?>
 
     <?php if ($this->getOrderOptions()): ?>
