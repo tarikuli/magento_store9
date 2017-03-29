@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <VES_PdfProItem>
+            <version>0.1.0</version>
+        </VES_PdfProItem>
+    </modules>
+    <global>
+    	<events>
+			<ves_pdfpro_data_prepare_after>
+				<observers>
+	                <pdfproitem>
+	                    <class>pdfproitem/observer</class>
+	                    <method>ves_pdfpro_data_prepare_after</method>
+	                </pdfproitem>
+	            </observers>
+			</ves_pdfpro_data_prepare_after>
+		</events>
+        <models>
+            <pdfproitem>
+                <class>VES_PdfProItem_Model</class>
+            </pdfproitem>
+        </models>
+        <helpers>
+            <pdfproitem>
+                <class>VES_PdfProItem_Helper</class>
+            </pdfproitem>
+        </helpers>
+    </global>
+</config>
